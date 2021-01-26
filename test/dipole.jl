@@ -3,8 +3,6 @@
 # Modified from the original Python version by
 # Los Alamos National Security, LLC. 2010
 
-using PyPlot
-
 # mean value of B at the magnetic equator on the Earth's surface, [nT]
 const B₀ = 31200. 
 
