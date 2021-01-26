@@ -1,4 +1,4 @@
-module StreamTrace
+module Unstructured
 
 using LinearAlgebra: dot
 using UnstructuredGrids
