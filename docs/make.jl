@@ -15,6 +15,7 @@ makedocs(;
         "Home" => "index.md",
         "Log" => "log.md",
         "Internal" => "internal.md",
+        "Example" => "example.md",
     ],
 )
 
