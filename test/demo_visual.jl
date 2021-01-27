@@ -1,14 +1,14 @@
 # Visual demonstration of the tracing scheme in different analytical field.
-using PyPlot
+using PyPlot, FieldTracer
 
 include("dipole.jl")
 
 """
-    test_trace_asymptote(IsSingle)
+    test_trace_asymptote(IsSingle=false)
 
-Test streamline tracing by plotting vectors and associated streamlines
-through a simple velocity field where Vx=x, Vy=-y.
-Support test for single and double precision.
+Test streamline tracing by plotting vectors and associated streamlines through a
+simple velocity field where Vx=x, Vy=-y. Support for single and double precision
+data.
 """
 function test_trace_asymptote(IsSingle=false)
 
@@ -76,7 +76,6 @@ function test_trace_asymptote(IsSingle=false)
    ax1.set_xlim([3, 30])
    ax1.set_ylim([0.25, 2.5 ])
 
-   # Annotate plot.
    ax1.annotate("Euler's method diverges strongly\nalong curves except when"*
       " taking \nvery small steps.  RK4 is\nfar more accurate "*
       "for all dS.",
@@ -96,16 +95,14 @@ function test_trace_asymptote(IsSingle=false)
       horizontalalignment="center")
 end
 
-"Trace field lines through a dipole field."
+"Trace field lines through a Earth like magnetic dipole field."
 function test_trace_dipole()
-   # Now do dipole magnetic field.
-   # Start by creating a field of unit vectors...
+   # Start by creating a field of unit vectors.
    x = -100.0:5.0:101.0
    y = -100.0:5.0:101.0
 
    bx, by = b_hat(x, y)
 
-   # New figure
    fig2 = plt.figure(figsize=(12,6))
    fig2.subplots_adjust(wspace=0.15, left=0.08, right=0.94)
    ax2 = plt.subplot(121)

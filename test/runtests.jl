@@ -1,8 +1,6 @@
 using FieldTracer
 using Test
 
-ENV["MPLBACKEND"]="agg" # no GUI
-
 @testset "FieldTracer.jl" begin
    @testset "2D structured mesh" begin
       # bilinear interpolation function in a normalized rectangle
@@ -69,7 +67,8 @@ ENV["MPLBACKEND"]="agg" # no GUI
    end
 
    @testset "2D unstructured mesh" begin
-
+      include("test_unstructured.jl")
+      @test test_trace_unstructured2D()
    end
 
 end

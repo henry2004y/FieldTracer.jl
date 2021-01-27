@@ -6,7 +6,11 @@
 
 ![](../figures/trace_dipole.png)
 
+* Magnetic field line tracing
 ![](../figures/BxBz_y0cut.png)
+
+* Streamline tracing in a 2D Earth magnetosphere simulation
+![](../figures/trace_streamline_2Dmagnetosphere)
 
 ## Unstructured 2D mesh
 

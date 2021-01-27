@@ -4,7 +4,7 @@ using LinearAlgebra: dot
 using UnstructuredGrids
 using UnstructuredGrids.RefCellGallery: SQUARE, TRIANGLE
 
-export pointLocation, streamtrace
+export getCellID, streamtrace
 
 const Δ = 100000. # Distance to the far field point
 const ϵ = 1e-5 # small perturbation
@@ -107,21 +107,21 @@ end
 
 
 """
-    pointLocation(mesh::UGrid, P)
+    getCellID(mesh::UGrid, P)
 
 Return cell ID in the unstructured grid `mesh` where 2D point `P` locates.
 """
-function pointLocation(mesh::UGrid, P)
+function getCellID(mesh::UGrid, P)
    x, y = P
-   pointLocation(mesh, x, y)
+   getCellID(mesh, x, y)
 end
 
 """
-    pointLocation(mesh::UGrid, x, y)
+    getCellID(mesh::UGrid, x, y)
 
 Return cell ID in the unstructured grid `mesh` where 2D point `[x,y]` locates.
 """
-function pointLocation(mesh::UGrid, x, y)
+function getCellID(mesh::UGrid, x, y)
    nCell = length(mesh.celltypes)
    xy = [x,y]
    iCell = Inf
@@ -216,14 +216,13 @@ end
 
 
 """
-	 streamtrace(mesh::UGrid, vx, vy, xstart, ystart;
-       MaxIter=1000, MaxLength=1000.)
+	 streamtrace(mesh::UGrid, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
 
 2D stream tracing in unstructured quadrilateral and triangular mesh.
 The code still needs to be polished.
 """
 function streamtrace(mesh::UGrid, vx, vy, xstart, ystart;
-   MaxIter=1000, MaxLength=1000.)
+   maxIter=1000, maxLen=1000.)
 
    xStream = [[xs] for xs in xstart]
    yStream = [[ys] for ys in ystart]
@@ -232,9 +231,9 @@ function streamtrace(mesh::UGrid, vx, vy, xstart, ystart;
 
    for iS in 1:length(xStream)
       xNow = [xStream[iS][1], yStream[iS][1]]
-      cellID = pointLocation(mesh, xNow[1], xNow[2])
+      cellID = getCellID(mesh, xNow[1], xNow[2])
 
-      for it = 1:MaxIter
+      for it = 1:maxIter
          xFar = [xNow[1]+vx[cellID]*Δ, xNow[2]+vy[cellID]*Δ]
 
          index_ = mesh.cells.ptrs[cellID]:mesh.cells.ptrs[cellID+1]-1

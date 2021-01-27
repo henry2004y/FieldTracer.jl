@@ -3,11 +3,11 @@
 include("dipole.jl")
 
 """
-    test_trace_asymptote(IsSingle)
+    test_trace_asymptote(IsSingle=false)
 
-Test streamline tracing by plotting vectors and associated streamlines
-through a simple velocity field where Vx=x, Vy=-y.
-Support test for single and double precision.
+Test streamline tracing by plotting vectors and associated streamlines through a
+simple velocity field where Vx=x, Vy=-y. Support for single and double precision
+data.
 """
 function test_trace_asymptote(IsSingle=false)
 
@@ -65,7 +65,7 @@ end
 "Trace field lines through a Earth like magnetic dipole field."
 function test_trace_dipole()
 
-   # Start by creating a field of unit vectors...
+   # Start by creating a field of unit vectors.
    x = -100.0:5.0:101.0
    y = -100.0:5.0:101.0
 

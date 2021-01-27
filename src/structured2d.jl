@@ -312,5 +312,5 @@ function trace2d_eul(fieldx, fieldy, xstart, ystart, gridx, gridy;
    return xt[1:npoints], yt[1:npoints]
 end
 
-trace2d(fieldx, fieldy, xstart, ystart, gridx, gridy) =
-   trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy)
+trace2d(fieldx, fieldy, xstart, ystart, gridx, gridy; kwargs...) =
+   trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy; kwargs...)
