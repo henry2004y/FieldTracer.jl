@@ -51,10 +51,10 @@ function normalize_field(iSize::T, jSize::T, ux, uy, dx, dy) where {T<:Integer}
 end
 
 """
-    grid_interp!(x, y, field, ix, iy, xsize)
+    grid_interp!(x, y, field, ix, iy)
 
 Interpolate a value at (x,y) in a field. `ix` and `iy` are indexes for x,y
-locations (0-based). `xsize` is the size of field in X.
+locations (0-based).
 """
 grid_interp!(x, y, field::Array, ix, iy) =
    bilin_reg(x-ix, y-iy,

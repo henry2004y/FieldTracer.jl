@@ -32,7 +32,8 @@ Some questions during the process:
 * How to improve the search speed?
 * How to improve accuracy?
 
-A package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) already exists. I take advantage of this package and quickly build a 2D stream tracer on unstructured 2D grid based on the brute force algorithm.
+A package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) already exists.
+I take advantage of this package and quickly build a 2D stream tracer on unstructured 2D grid based on the brute force algorithm.
 
 Actually, this may not be as bad as you think in terms of accuracy. Finite volume method uses one value per cell to represent the solution space, therefore it is just cheating to use higher order method for stream tracing.
 
@@ -84,3 +85,6 @@ In the VTK library, there is a class called `vtkPointLocator`. It is a spatial s
 ## Limitations
 
 * Currently most tracing functions in the package assume regular grid, meaning that the size of each cell is not changing. However, the whole grid information is passed all the way down to the kernel functions, which may be a waste of memory.
+
+* The underlying package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) is no longer maintained.
+I need to look for a better substitution, the best choice as of now is [Meshes.jl](https://github.com/JuliaGeometry/Meshes.jl).
