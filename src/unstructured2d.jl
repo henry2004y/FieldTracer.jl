@@ -2,7 +2,7 @@ using Meshes
 
 export getCellID, trace2d
 
-const Δ = 100000. # Distance to the far field point
+const Δ = 100000. # distance to the far field point
 const ϵ = 1e-5 # small perturbation
 
 """
@@ -38,16 +38,14 @@ function trace2d(mesh::UnstructuredMesh, vx, vy, xstart, ystart;
          for i = 1:nEdge
             j = i % nEdge + 1 
             P = Segment(mesh.points[nodes[i]], mesh.points[nodes[j]]) ∩ ray
-            if !isnothing(P)
-               if typeof(P) == Point2
-                  P⁺ = P + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
-                  cellIDNew = getCellID(mesh, P⁺)
-                  break
-               else # line segment
-                  P⁺ = mesh.points[nodes[j]] + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
-                  cellIDNew = getCellID(mesh, P⁺)
-                  break
-               end
+            if P isa Point
+               P⁺ = P + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
+               cellIDNew = getCellID(mesh, P⁺)
+               break
+            elseif P isa Segment
+               P⁺ = mesh.points[nodes[j]] + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
+               cellIDNew = getCellID(mesh, P⁺)
+               break
             end
          end
 

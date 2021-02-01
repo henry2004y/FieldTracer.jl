@@ -24,13 +24,11 @@ using Test
       xt = Vector{Float64}(undef, maxstep) # output x
       yt = Vector{Float64}(undef, maxstep) # output y
 
-      npoints = FieldTracer.Euler!(length(x), length(y), maxstep, ds,
-         startx, starty, x, y, u, v, xt, yt)
+      npoints = FieldTracer.Euler!(maxstep, ds, startx,starty, x,y, u,v, xt,yt)
 
       @test npoints == 141
 
-      npoints = FieldTracer.RK4!(length(x), length(y), maxstep, ds,
-         startx, starty, x, y, u, v, xt, yt)
+      npoints = FieldTracer.RK4!(maxstep, ds, startx,starty, x,y, u,v, xt,yt)
 
       @test npoints == 140
 
