@@ -215,17 +215,17 @@ end
 
 """
 	 trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
-		 maxstep=20000, ds=0.01, gridType="meshgrid", direction="both")
+		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Runge Kutta 4. Slower than
 Euler, but more accurate. The higher accuracy allows for larger step sizes `ds`.
 Only valid for regular grid with coordinates' range `gridx` and `gridy`.
-The field can be in both `meshgrid` (default) or `ndgrid` format.
+The field can be in both `meshgrid` or `ndgrid` (default) format.
 Supporting `direction` for {"both","forward","backward"}.
 """
 function trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
-   maxstep=20000, ds=0.01, gridType="meshgrid", direction="both")
+   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
    xt = Vector{eltype(fieldx)}(undef,maxstep) # output x
    yt = Vector{eltype(fieldy)}(undef,maxstep) # output y
@@ -260,17 +260,17 @@ end
 
 """
 	 trace2d_eul(fieldx, fieldy, xstart, ystart, gridx, gridy;
-		 maxstep=20000, ds=0.01, gridType="meshgrid", direction="both")
+		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Euler's method. While this is
 faster than rk4, it is less accurate. Only valid for regular grid with
 coordinates' range `gridx` and `gridy`.
-The field can be in both `meshgrid` (default) or `ndgrid` format.
+The field can be in both `meshgrid` or `ndgrid` (default) format.
 Supporting `direction` for {"both","forward","backward"}.
 """
 function trace2d_eul(fieldx, fieldy, xstart, ystart, gridx, gridy;
-   maxstep=20000, ds=0.01, gridType="meshgrid", direction="both")
+   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
    xt = Vector{eltype(fieldx)}(undef,maxstep) # output x
    yt = Vector{eltype(fieldy)}(undef,maxstep) # output y
