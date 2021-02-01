@@ -34,14 +34,16 @@ Some questions during the process:
 
 A package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) already exists.
 I take advantage of this package and quickly build a 2D stream tracer on unstructured 2D grid based on the brute force algorithm.
+Unfortunately it is no longer maintained.
+I substituted it with [Meshes.jl](https://github.com/JuliaGeometry/Meshes.jl), which provides a cleaner interface and seems to be carefully designed.
 
-Actually, this may not be as bad as you think in terms of accuracy. Finite volume method uses one value per cell to represent the solution space, therefore it is just cheating to use higher order method for stream tracing.
+Actually, the brute force algorithm may not be as bad as you think in terms of accuracy. Finite volume method uses one value per cell to represent the solution space, therefore it is just cheating to use higher order method for stream tracing.
 
 An example is shown for the 2D streamline tracing in the unstructured triangular mesh for the famous airfoil problem. The blue lines are the analytic stream functions derived from incompressible Euler equations which are calculated numerically. Three colored lines are displayed with dots representing the footprint inside each cell.
 
 An extension to 3D is possible and I may work on it in the future.
 
-### Matlab
+### MATLAB
 
 There is an implementation of streamline tracing in Matlab called tristream. It requires nodal data.
 
@@ -85,6 +87,3 @@ In the VTK library, there is a class called `vtkPointLocator`. It is a spatial s
 ## Limitations
 
 * Currently most tracing functions in the package assume regular grid, meaning that the size of each cell is not changing. However, the whole grid information is passed all the way down to the kernel functions, which may be a waste of memory.
-
-* The underlying package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) is no longer maintained.
-I need to look for a better substitution, the best choice as of now is [Meshes.jl](https://github.com/JuliaGeometry/Meshes.jl).

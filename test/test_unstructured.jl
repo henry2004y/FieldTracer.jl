@@ -3,10 +3,7 @@
 #
 # Hongyang Zhou, hyzhou@umich.edu 03/29/2020
 
-using UnstructuredGrids
-using UnstructuredGrids.RefCellGallery: SQUARE, TRIANGLE
-using FieldTracer
-import FieldTracer: Unstructured.streamtrace, Unstructured.getCellID
+using FieldTracer, Meshes
 
 "Check if tracing on mixed 2D unstructured grid passes."
 function test_trace_unstructured2D()
@@ -23,27 +20,16 @@ function test_trace_unstructured2D()
    coords[:,8] = [3, 3]
    coords[:,9] = [4, 3]
 
-   # Define connectivity
-   connect = [1,2,5,4,2,3,9,4,5,7,6,5,8,7,5,2,8,2,9,8]
-   offsets = [1,      5,    8,      12,   15,   18,   21]
+   points = Point2[coords[:,i] for i in 1:size(coords,2)]
+   tris = connect.([(2,3,9), (5,8,7), (5,2,8), (2,9,8)], Triangle)
+   quads = connect.([(1,2,5,4),(4,5,7,6)], Quadrangle)
+   mesh = UnstructuredMesh(points, [tris; quads])
 
-   # Define cell types
-   refcells = [SQUARE, TRIANGLE]
-   types = [1,2,1,2,2,2]
-
-   # Generate the Umesh object
-   mesh = UGrid(connect, offsets, types, refcells, coords)
-
-   #writevtk(grid,"foo") # -> generates file "foo.vtu" 
-
-   #getCellID(mesh, 2.5, 1.0)
-
-   # Add cell center vector data
    vx = fill(0.5, 6)
    vy = fill(0.3, 6)
    start = [1.5, 1.5]
-
-   xs, ys = streamtrace(mesh, vx, vy, [start[1]], [start[2]])
+   
+   xs, ys = trace2d(mesh, vx, vy, [start[1]], [start[2]])
 
    if length(xs[1]) == 4 && xs[1][4] ≈ 4.000005 && ys[1][4] ≈ 3.000003
       return true
