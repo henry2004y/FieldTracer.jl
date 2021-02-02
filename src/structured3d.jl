@@ -1,6 +1,6 @@
 # 3D field tracing on a regular grid.
 
-export trace3d, trace3d_eul
+export trace3d, trace3d_euler, trace3d_rk4
 
 """
     trilin_reg(x, y, z, Q)
@@ -62,22 +62,22 @@ grid_interp!(x, y, z, field, ix, iy, iz) =
    ])
 
 """
-    Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid, ux, uy, uz,
-       x, y, z)
+    Euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
 
-Simple 3D tracing using Euler's method.
-# Arguments
-- `maxstep::Int`: max steps.
-- `ds::Float64`: step size.
-- `xstart::Float64, ystart::Float64, zstart::Float64`: starting location.
-- `xGrid::Array{Float64,2},yGrid::Array{Float64,2},zGrid::Array{Float64,2}`: actual coord system.
-- `ux::Array{Float64,2},uy::Array{Float64,2},uz::Array{Float64,2}`: field to trace through.
-- `x::Vector{Float64},y::Vector{Float64},z::Vector{Float64}`: x, y, z of result stream.
+Fast 3D tracing using Euler's method. It takes at most `maxstep` with step size
+`ds` tracing the vector field given by `ux,uy,uz` starting from 
+`(startx,starty,startz)` in the Cartesian grid specified by ranges `xGrid`,
+`yGrid` and `zGrid`.
+Return footprints' coordinates in (`x`,`y`,`z`).
 """
-function Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid,
-   ux, uy, uz, x, y, z)
+function Euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
+   ux, uy, uz)
 
    @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
+
+   x = Vector{eltype(startx)}(undef, maxstep)
+   y = Vector{eltype(starty)}(undef, maxstep)
+   z = Vector{eltype(startz)}(undef, maxstep)
 
    iSize, jSize, kSize = size(xGrid,1), size(yGrid,1), size(zGrid,1)
 
@@ -85,9 +85,9 @@ function Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid,
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
    dz = zGrid[2] - zGrid[1]
-   x[1] = (xstart-xGrid[1]) / dx
-   y[1] = (ystart-yGrid[1]) / dy
-   z[1] = (zstart-zGrid[1]) / dz
+   x[1] = (startx-xGrid[1]) / dx
+   y[1] = (starty-yGrid[1]) / dy
+   z[1] = (startz-zGrid[1]) / dz
 
    # Create unit vectors from full vector field
    f1, f2, f3 = normalize_field(ux, uy, uz, dx, dy, dz)
@@ -128,21 +128,24 @@ function Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid,
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
    end
-   return nstep
+   return x[1:nstep], y[1:nstep], z[1:nstep]
 end
 
 
 """
-    RK4!(maxstep, ds, xstart,ystart,zstart,
-      xGrid,yGrid,zGrid, ux,uy,uz, x,y,z)
+    RK4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
 
 Fast and reasonably accurate 3D tracing with 4th order Runge-Kutta method and
-constant step size `ds`.
+constant step size `ds`. See also [`Euler`](@ref).
 """
-function RK4!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
-   xGrid, yGrid, zGrid, ux, uy, uz, x, y, z)
+function RK4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
+   ux, uy, uz)
 
    @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
+
+   x = Vector{eltype(startx)}(undef, maxstep)
+   y = Vector{eltype(starty)}(undef, maxstep)
+   z = Vector{eltype(startz)}(undef, maxstep)
 
    iSize, jSize, kSize = size(xGrid,1), size(yGrid,1), size(zGrid,1)
 
@@ -150,9 +153,9 @@ function RK4!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
    dz = zGrid[2] - zGrid[1]
-   x[1] = (xstart-xGrid[1]) / dx
-   y[1] = (ystart-yGrid[1]) / dy
-   z[1] = (zstart-zGrid[1]) / dz
+   x[1] = (startx-xGrid[1]) / dx
+   y[1] = (starty-yGrid[1]) / dy
+   z[1] = (startz-zGrid[1]) / dz
 
    # Create unit vectors from full vector field
    fx, fy, fz = normalize_field(ux, uy, uz, dx, dy, dz)
@@ -234,26 +237,21 @@ function RK4!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
    end
-   return nstep
+   return x[1:nstep], y[1:nstep], z[1:nstep]
 end
 
 """
-	 trace3d_eul(fieldx, fieldy, fieldz, xstart, ystart, zstart, gridx, gridy,
+	 trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy,
        gridz; maxstep=20000, ds=0.01)
 
 Given a 3D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Euler's method. Only valid for
 regular grid with coordinates `gridx`, `gridy`, `gridz`.
 The field can be in both `meshgrid` or `ndgrid` (default) format.
+Supporting `direction` of {"both","forward","backward"}.
 """
-function trace3d_eul(fieldx, fieldy, fieldz, xstart, ystart, zstart, gridx,
-   gridy, gridz; maxstep=20000, ds=0.01, gridType="ndgrid")
-
-   xt = Vector{eltype(fieldx)}(undef,maxstep) # output x
-   yt = Vector{eltype(fieldy)}(undef,maxstep) # output y
-   zt = Vector{eltype(fieldz)}(undef,maxstep) # output z
-
-   gx, gy, gz = collect(gridx), collect(gridy), collect(gridz)
+function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
+   gridy, gridz; maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
    if gridType == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
@@ -261,12 +259,78 @@ function trace3d_eul(fieldx, fieldy, fieldz, xstart, ystart, zstart, gridx,
       fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
    end
 
-   npoints = Euler!(maxstep, ds, xstart,ystart,zstart, gx,gy,gz, fx,fy,fz,
-      xt,yt,zt)
+   if direction == "forward"
+      xt, yt, zt = Euler(maxstep, ds, startx,starty,startz, gridx,gridy,gridz,
+      fx, fy, fz)
+   elseif direction == "backward"
+      xt, yt, zt = Euler(maxstep, ds, startx,starty,startz, gridx,gridy,gridz,
+      -fx, -fy, -fz)
+   else
+      x1, y1, z1 = Euler(floor(Int,maxstep/2), ds, startx, starty, startz,
+         gridx, gridy, gridz, -fx, -fy, -fz)
+      blen = length(x1)
+      x2, y2, z2 = Euler(maxstep-blen, ds, startx, starty, startz,
+         gridx, gridy, gridz, fx, fy, fz)
+      # concatenate with duplicates removed
+      xt = vcat(reverse!(x1), x2[2:end])
+      yt = vcat(reverse!(y1), y2[2:end])
+      zt = vcat(reverse!(z1), z2[2:end])
+   end
 
-   return xt[1:npoints], yt[1:npoints], zt[1:npoints]
+   return xt, yt, zt
 end
 
-trace3d(fieldx, fieldy, fieldz, xstart, ystart, zstart, gridx, gridy, gridz) =
-   trace3d_eul(fieldx, fieldy, fieldz, xstart, ystart, zstart,
-   gridx, gridy, gridz)
+
+"""
+	 trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy,
+       gridz; maxstep=20000, ds=0.01)
+
+Given a 3D vector field, trace a streamline from a given point to the edge of
+the vector field. The field is integrated using Euler's method. Only valid for
+regular grid with coordinates `gridx`, `gridy`, `gridz`.
+The field can be in both `meshgrid` or `ndgrid` (default) format.
+"""
+function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
+   gridy, gridz; maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+
+   if gridType == "ndgrid"
+      fx, fy, fz = fieldx, fieldy, fieldz
+   else # meshgrid
+      fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
+   end
+
+   xt, yt, zt = RK4(maxstep, ds, startx, starty, startz, gridx, gridy, gridz,
+      fx, fy, fz)
+
+   return xt, yt, zt
+end
+
+"""
+    trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
+       grid::CartesianGrid;
+		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+"""
+function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
+   grid::CartesianGrid; kwargs...)
+
+   gridmin = coordinates(minimum(grid))
+   gridmax = coordinates(maximum(grid))
+   Δx = spacing(grid)
+
+   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
+   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
+   gridz = range(gridmin[3], gridmax[3], step=Δx[3])
+
+   trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
+      gridx, gridy, gridz; kwargs...)
+end
+
+"""
+	 trace3d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
+
+3D stream tracing in structured mesh with field in 3D array and grid in range.
+"""
+trace3d(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
+   kwargs...) =
+   trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz,
+   gridx, gridy, gridz; kwargs...)

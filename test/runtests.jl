@@ -61,10 +61,28 @@ using Test
       bz = fill(1.0, length(x), length(y), length(z))
       xs, ys, zs = 1.0, 1.0, 1.0
    
-      # Euler2
-      x1, y1, z1 = trace3d_eul(bx, bz, bz, xs, ys, zs, x, y, z, ds=0.2, maxstep=200)
+      # Euler 2nd order
+      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, x, y, z, ds=0.2, maxstep=200)
 
-      @test length(x1) == 153 && x1[end] ≈ y1[end] ≈ z1[end]
+      @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
+
+      # RK4 by default
+      x1, y1, z1 = trace3d(bx, bz, bz, xs, ys, zs, x, y, z, ds=0.2, maxstep=200)
+
+      @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
+
+      Δx = x[2] - x[1]
+      Δy = y[2] - y[1]
+      Δz = z[2] - z[1]
+
+      grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
+         (0., 0., 0.),
+         (Δx, Δy, Δz))
+
+      # default direction is both
+      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
+
+      @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
    end
 
    @testset "2D unstructured mesh" begin

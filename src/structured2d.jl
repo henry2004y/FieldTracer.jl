@@ -56,27 +56,27 @@ grid_interp!(x, y, field::Array, ix, iy) =
    field[ix+2, iy+2])
 
 """
-    Euler(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
+    Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
 Fast 2D tracing using Euler's method. It takes at most `maxstep` with step size
-`ds` tracing the vector field given by `ux,uy` starting from `(xstart,ystart)`
+`ds` tracing the vector field given by `ux,uy` starting from `(startx,starty)`
 in the Cartesian grid specified by ranges `xGrid` and `yGrid`.
 Return footprints' coordinates in (`x`,`y`).
 """
-function Euler(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
+function Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
-   x = Vector{eltype(xstart)}(undef, maxstep)
-   y = Vector{eltype(ystart)}(undef, maxstep)
+   x = Vector{eltype(startx)}(undef, maxstep)
+   y = Vector{eltype(starty)}(undef, maxstep)
 
    iSize, jSize = size(xGrid,1), size(yGrid,1)
 
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
-   x[1] = (xstart-xGrid[1]) / dx
-   y[1] = (ystart-yGrid[1]) / dy
+   x[1] = (startx-xGrid[1]) / dx
+   y[1] = (starty-yGrid[1]) / dy
 
    # Create unit vectors from full vector field
    f1, f2 = normalize_field(ux, uy, dx, dy)
@@ -117,25 +117,25 @@ function Euler(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
 end
 
 """
-    RK4(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
+    RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
 Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and
 constant step size `ds`. See also [`Euler`](@ref).
 """
-function RK4(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
+function RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
-   x = Vector{eltype(xstart)}(undef, maxstep)
-   y = Vector{eltype(ystart)}(undef, maxstep)
+   x = Vector{eltype(startx)}(undef, maxstep)
+   y = Vector{eltype(starty)}(undef, maxstep)
 
    iSize, jSize = size(xGrid,1), size(yGrid,1)
 
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
-   x[1] = (xstart-xGrid[1]) / dx
-   y[1] = (ystart-yGrid[1]) / dy
+   x[1] = (startx-xGrid[1]) / dx
+   y[1] = (starty-yGrid[1]) / dy
 
    # Create unit vectors from full vector field
    fx, fy = normalize_field(ux, uy, dx, dy)
@@ -209,7 +209,7 @@ function RK4(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy)
 end
 
 """
-	 trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
+	 trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
 		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
@@ -217,7 +217,7 @@ the vector field. The field is integrated using Runge Kutta 4. Slower than
 Euler, but more accurate. The higher accuracy allows for larger step sizes `ds`.
 See also [`trace2d_euler`](@ref).
 """
-function trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
+function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
    if gridType == "ndgrid"
@@ -229,14 +229,14 @@ function trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
    end
 
    if direction == "forward"
-      xt, yt = RK4(maxstep, ds, xstart, ystart, gridx, gridy, fx, fy)
+      xt, yt = RK4(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
    elseif direction == "backward"
-      xt, yt = RK4(maxstep, ds, xstart, ystart, gridx, gridy, -fx, -fy)
+      xt, yt = RK4(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
    else
-      x1, y1 = RK4(floor(Int,maxstep/2), ds, xstart, ystart, gridx, gridy,
+      x1, y1 = RK4(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
          -fx, -fy)
       blen = length(x1)
-      x2, y2 = RK4(maxstep-blen, ds, xstart, ystart, gridx, gridy, fx, fy)
+      x2, y2 = RK4(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
       # concatenate with duplicates removed
       xt = vcat(reverse!(x1), x2[2:end])
       yt = vcat(reverse!(y1), y2[2:end])
@@ -246,16 +246,16 @@ function trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy;
 end
 
 """
-	 trace2d_euler(fieldx, fieldy, xstart, ystart, gridx, gridy;
+	 trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
 		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Euler's method, which is faster
 but less accurate than RK4. Only valid for regular grid with coordinates' range
 `gridx` and `gridy`. The field can be in both `meshgrid` or `ndgrid` (default)
-format. Supporting `direction` for {"both","forward","backward"}.
+format. Supporting `direction` of {"both","forward","backward"}.
 """
-function trace2d_euler(fieldx, fieldy, xstart, ystart, gridx, gridy;
+function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
    if gridType == "ndgrid"
@@ -267,14 +267,14 @@ function trace2d_euler(fieldx, fieldy, xstart, ystart, gridx, gridy;
    end
 
    if direction == "forward"
-      xt, yt = Euler(maxstep, ds, xstart, ystart, gridx, gridy, fx, fy)
+      xt, yt = Euler(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
    elseif direction == "backward"
-      xt, yt = Euler(maxstep, ds, xstart, ystart, gridx, gridy, -fx, -fy)
+      xt, yt = Euler(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
    else
-      x1, y1 = Euler(floor(Int,maxstep/2), ds, xstart, ystart, gridx, gridy,
+      x1, y1 = Euler(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
          -fx, -fy)
       blen = length(x1)
-      x2, y2 = Euler(maxstep-blen, ds, xstart, ystart, gridx, gridy, fx, fy)
+      x2, y2 = Euler(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
       # concatenate with duplicates removed
       xt = vcat(reverse!(x1), x2[2:end])
       yt = vcat(reverse!(y1), y2[2:end])
@@ -284,11 +284,11 @@ function trace2d_euler(fieldx, fieldy, xstart, ystart, gridx, gridy;
 end
 
 """
-	 trace2d_euler(fieldx, fieldy, xstart, ystart, grid::CartesianGrid;
-		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+    trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
+       kwargs...)
 """
-function trace2d_euler(fieldx, fieldy, xstart, ystart, grid::CartesianGrid;
-   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
+   kwargs...)
 
    gridmin = coordinates(minimum(grid))
    gridmax = coordinates(maximum(grid))
@@ -297,14 +297,13 @@ function trace2d_euler(fieldx, fieldy, xstart, ystart, grid::CartesianGrid;
    gridx = range(gridmin[1], gridmax[1], step=Δx[1])
    gridy = range(gridmin[2], gridmax[2], step=Δx[2])
 
-   trace2d_euler(fieldx, fieldy, xstart, ystart, gridx, gridy;
-      maxstep, ds, gridType, direction)
+   trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 end
 
 """
-	 trace2d(fieldx, fieldy, xstart, ystart, gridx, gridy; kwargs...)
+	 trace2d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 
 2D stream tracing in structured mesh with field in 2D array and grid in range.
 """
-trace2d(fieldx, fieldy, xstart, ystart, gridx, gridy; kwargs...) =
-   trace2d_rk4(fieldx, fieldy, xstart, ystart, gridx, gridy; kwargs...)
+trace2d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...) =
+   trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
