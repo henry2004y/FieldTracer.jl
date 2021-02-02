@@ -21,10 +21,10 @@ function trilin_reg(x, y, z, Q)
 end
 
 "Create unit vectors of field in normalized coordinates."
-function normalize_field(iSize::T, jSize::T, kSize::T, ux, uy, uz, dx, dy, dz) where {T<:Integer}
+function normalize_field(ux, uy, uz, dx, dy, dz)
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
    dxInv, dyInv, dzInv = 1/dx, 1/dy, 1/dz
-   @inbounds for i = 1:iSize*jSize*kSize
+   @inbounds for i = 1:length(ux)
       uInv = 1.0 / sqrt((ux[i]*dxInv)^2 + (uy[i]*dyInv)^2 + (uz[i]*dzInv)^2)
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
@@ -59,7 +59,6 @@ grid_interp!(x, y, z, field, ix, iy, iz) =
 
 Simple 3D tracing using Euler's method.
 # Arguments
-- `iSize::Int,jSize::Int,kSize::Int`: grid size.
 - `maxstep::Int`: max steps.
 - `ds::Float64`: step size.
 - `xstart::Float64, ystart::Float64, zstart::Float64`: starting location.
@@ -67,8 +66,12 @@ Simple 3D tracing using Euler's method.
 - `ux::Array{Float64,2},uy::Array{Float64,2},uz::Array{Float64,2}`: field to trace through.
 - `x::Vector{Float64},y::Vector{Float64},z::Vector{Float64}`: x, y, z of result stream.
 """
-function Euler!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
-   xGrid, yGrid, zGrid, ux, uy, uz, x, y, z)
+function Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid,
+   ux, uy, uz, x, y, z)
+
+   @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
+
+   iSize, jSize, kSize = size(xGrid,1), size(yGrid,1), size(zGrid,1)
 
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
@@ -79,7 +82,7 @@ function Euler!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
    z[1] = (zstart-zGrid[1]) / dz
 
    # Create unit vectors from full vector field
-   f1, f2, f3 = normalize_field(iSize, jSize, kSize, ux, uy, uz, dx, dy, dz)
+   f1, f2, f3 = normalize_field(ux, uy, uz, dx, dy, dz)
 
    nstep = 0
    # Perform tracing using Euler's method
@@ -122,7 +125,7 @@ end
 
 
 """
-    RK4!(iSize,jSize,kSize, maxstep, ds, xstart,ystart,zstart,
+    RK4!(maxstep, ds, xstart,ystart,zstart,
       xGrid,yGrid,zGrid, ux,uy,uz, x,y,z)
 
 Fast and reasonably accurate 3D tracing with 4th order Runge-Kutta method and
@@ -130,6 +133,10 @@ constant step size `ds`.
 """
 function RK4!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
    xGrid, yGrid, zGrid, ux, uy, uz, x, y, z)
+
+   @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
+
+   iSize, jSize, kSize = size(xGrid,1), size(yGrid,1), size(zGrid,1)
 
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
@@ -140,7 +147,7 @@ function RK4!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
    z[1] = (zstart-zGrid[1]) / dz
 
    # Create unit vectors from full vector field
-   fx, fy, fz = normalize_field(iSize, jSize, kSize, ux, uy, uz, dx, dy, dz)
+   fx, fy, fz = normalize_field(ux, uy, uz, dx, dy, dz)
 
    nstep = 0
    # Perform tracing using RK4
@@ -238,18 +245,16 @@ function trace3d_eul(fieldx, fieldy, fieldz, xstart, ystart, zstart, gridx,
    yt = Vector{eltype(fieldy)}(undef,maxstep) # output y
    zt = Vector{eltype(fieldz)}(undef,maxstep) # output z
 
-   nx, ny, nz = size(gridx)[1], size(gridy)[1], size(gridz)[1]
-
    gx, gy, gz = collect(gridx), collect(gridy), collect(gridz)
 
-   if gridType == "ndgrid" # ndgrid
+   if gridType == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
    else # meshgrid
       fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
    end
 
-   npoints = Euler!(nx,ny,nz, maxstep, ds, xstart,ystart,zstart, gx,gy,gz,
-      fx,fy,fz, xt,yt,zt)
+   npoints = Euler!(maxstep, ds, xstart,ystart,zstart, gx,gy,gz, fx,fy,fz,
+      xt,yt,zt)
 
    return xt[1:npoints], yt[1:npoints], zt[1:npoints]
 end

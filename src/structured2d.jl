@@ -63,7 +63,7 @@ grid_interp!(x, y, field::Array, ix, iy) =
    field[ix+2, iy+2])
 
 """
-    Euler!(maxstep, ds, xstart,ystart, xGrid,yGrid, ux,uy, x,y)
+    Euler!(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy, x, y)
 
 Simple 2D tracing using Euler's method. Super fast but not super accurate.
 # Arguments
@@ -125,7 +125,7 @@ function Euler!(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy, x, y)
 end
 
 """
-    RK4!(maxstep, ds, xstart,ystart, xGrid,yGrid, ux,uy, x,y)
+    RK4!(maxstep, ds, xstart, ystart, xGrid, yGrid, ux, uy, x, y)
 
 Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and
 constant step size `ds`.
@@ -302,6 +302,24 @@ function trace2d_eul(fieldx, fieldy, xstart, ystart, gridx, gridy;
    end
 
    return xt[1:npoints], yt[1:npoints]
+end
+
+"""
+	 trace2d_eul(fieldx, fieldy, xstart, ystart, grid::CartesianGrid;
+		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+"""
+function trace2d_eul(fieldx, fieldy, xstart, ystart, grid::CartesianGrid;
+   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+
+   gridmin = coordinates(minimum(grid))
+   gridmax = coordinates(maximum(grid))
+   Δx = spacing(grid)
+
+   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
+   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
+
+   trace2d_eul(fieldx, fieldy, xstart, ystart, gridx, gridy;
+      maxstep, ds, gridType, direction)
 end
 
 """

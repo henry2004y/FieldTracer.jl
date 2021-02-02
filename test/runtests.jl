@@ -1,4 +1,4 @@
-using FieldTracer
+using FieldTracer, Meshes
 using Test
 
 @testset "FieldTracer.jl" begin
@@ -19,18 +19,25 @@ using Test
       ygrid = [j for _ in x, j in y]
       u = copy(xgrid)
       v = -copy(ygrid)
-      startx = 0.1
-      starty = 0.9
+      xstart = 0.1
+      ystart = 0.9
       xt = Vector{Float64}(undef, maxstep) # output x
       yt = Vector{Float64}(undef, maxstep) # output y
 
-      npoints = FieldTracer.Euler!(maxstep, ds, startx,starty, x,y, u,v, xt,yt)
+      npoints = FieldTracer.Euler!(maxstep, ds, xstart,ystart, x,y, u,v, xt,yt)
 
       @test npoints == 141
 
-      npoints = FieldTracer.RK4!(maxstep, ds, startx,starty, x,y, u,v, xt,yt)
+      npoints = FieldTracer.RK4!(maxstep, ds, xstart,ystart, x,y, u,v, xt,yt)
 
       @test npoints == 140
+
+      grid = CartesianGrid((length(x)-1,length(y)-1),(0.,0.),(0.1,0.1))
+
+      # default direction is both
+      xt, yt = trace2d_eul(u, v, xstart, ystart, grid, maxstep=maxstep, ds=ds)
+
+      @test length(xt) == 148
 
       include("test_structured.jl")
       # asymptotic field
@@ -51,11 +58,9 @@ using Test
       x = range(0, 10, length=15)
       y = range(0, 10, length=20)
       z = range(0, 10, length=25)
-      X = [i for i in x, _ in y, _ in z]
-      Y = [j for _ in x, j in y, _ in z]
-      Z = [k for _ in x, _ in y, k in z]
-      bx, by, bz = similar(X), similar(X), similar(X)
-      bx .= 1.0; by .= 1.0; bz .= 1.0
+      bx = fill(1.0, length(x), length(y), length(z))
+      by = fill(1.0, length(x), length(y), length(z))
+      bz = fill(1.0, length(x), length(y), length(z))
       xs, ys, zs = 1.0, 1.0, 1.0
    
       # Euler2
