@@ -40,7 +40,7 @@ function test_trace_asymptote(IsSingle=false)
    end
 
    x1, y1 = trace2d_rk4(vx, vy, xstart, ystart, x, y, ds=0.1, gridType="meshgrid")
-   x2, y2 = trace2d_eul(vx, vy, xstart, ystart, x, y, ds=0.1, gridType="meshgrid")
+   x2, y2 = trace2d_euler(vx, vy, xstart, ystart, x, y, ds=0.1, gridType="meshgrid")
 
    # analytical solution const = x*y
    c = xstart * ystart
@@ -77,7 +77,7 @@ function test_trace_dipole()
    ds = 0.1
    
    x1, y1 = trace2d_rk4(bx, by, xstart, ystart, x, y, ds=ds, gridType="meshgrid")
-   x2, y2 = trace2d_eul(bx, by, xstart, ystart, x, y, ds=ds, gridType="meshgrid")
+   x2, y2 = trace2d_euler(bx, by, xstart, ystart, x, y, ds=ds, gridType="meshgrid")
 
    if length(x1) == 260 && isapprox(x1[end]*y1[end], 7462.42688, atol=1e-5) &&
       length(x2) == 262 && isapprox(x2[end]*y2[end], 7601.60590, atol=1e-5)

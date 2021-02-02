@@ -20,6 +20,14 @@ function trilin_reg(x, y, z, Q)
       Q[8]* x * y * z
 end
 
+# Extension from 2d case
+function DoBreak(iloc, jloc, kloc, iSize, jSize, kSize)
+   ibreak = false
+   if iloc ≥ iSize-1 || jloc ≥ jSize-1 || kloc ≥ kSize-1; ibreak = true end
+   if iloc < 0 || jloc < 0 || kloc < 0; ibreak = true end
+   return ibreak
+end
+
 "Create unit vectors of field in normalized coordinates."
 function normalize_field(ux, uy, uz, dx, dy, dz)
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
@@ -54,8 +62,8 @@ grid_interp!(x, y, z, field, ix, iy, iz) =
    ])
 
 """
-    Euler!(iSize, jSize, kSize, maxstep, ds, xstart, ystart, zstart,
-      xGrid, yGrid, zGrid, ux, uy, uz, x, y, z)
+    Euler!(maxstep, ds, xstart, ystart, zstart, xGrid, yGrid, zGrid, ux, uy, uz,
+       x, y, z)
 
 Simple 3D tracing using Euler's method.
 # Arguments

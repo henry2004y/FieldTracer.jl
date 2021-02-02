@@ -21,21 +21,19 @@ using Test
       v = -copy(ygrid)
       xstart = 0.1
       ystart = 0.9
-      xt = Vector{Float64}(undef, maxstep) # output x
-      yt = Vector{Float64}(undef, maxstep) # output y
 
-      npoints = FieldTracer.Euler!(maxstep, ds, xstart,ystart, x,y, u,v, xt,yt)
+      xt, yt = FieldTracer.Euler(maxstep, ds, xstart, ystart, x, y, u, v)
 
-      @test npoints == 141
+      @test length(xt) == 141
 
-      npoints = FieldTracer.RK4!(maxstep, ds, xstart,ystart, x,y, u,v, xt,yt)
+      xt, yt = FieldTracer.RK4(maxstep, ds, xstart, ystart, x, y, u, v)
 
-      @test npoints == 140
+      @test length(xt) == 140
 
       grid = CartesianGrid((length(x)-1,length(y)-1),(0.,0.),(0.1,0.1))
 
       # default direction is both
-      xt, yt = trace2d_eul(u, v, xstart, ystart, grid, maxstep=maxstep, ds=ds)
+      xt, yt = trace2d_euler(u, v, xstart, ystart, grid, maxstep=maxstep, ds=ds)
 
       @test length(xt) == 148
 
