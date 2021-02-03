@@ -1,7 +1,5 @@
 # 2D Field tracing on a regular grid.
 
-using Random
-
 export trace2d, trace2d_rk4, trace2d_euler
 
 """

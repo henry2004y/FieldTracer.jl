@@ -2,6 +2,16 @@ using FieldTracer, Meshes
 using Test
 
 @testset "FieldTracer.jl" begin
+   @testset "Seeding" begin
+      x = 0.0:0.1:1.0
+      y = 1.0:0.1:2.0
+      seeds = select_seeds(x, y; nSeed=4)
+      @test seeds[:,4] ≈ [0.177329, 1.00791] atol=1e-5
+      z = 2.0:0.1:3.0
+      seeds = select_seeds(x, y, z; nSeed=2)
+      @test seeds[:,2] ≈ [0.910357, 1.34652, 2.52388] atol=1e-5
+   end
+
    @testset "2D structured mesh" begin
       # bilinear interpolation function in a normalized rectangle
       x, y = 0.1, 0.2
