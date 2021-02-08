@@ -2,9 +2,9 @@
 
 [[Adapt]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "4146c39f29be88c3f0cef732f86e5ab640d2e22d"
+git-tree-sha1 = "ffcfa2d345aaee0ef3d8346a073d5dd03c983ebe"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "3.1.1"
+version = "3.2.0"
 
 [[Artifacts]]
 deps = ["Pkg"]
@@ -23,9 +23,9 @@ version = "0.9.27"
 
 [[CircularArrays]]
 deps = ["OffsetArrays"]
-git-tree-sha1 = "f9a74e8d307d6e7b4e4bb3ea15a8c94fd4381140"
+git-tree-sha1 = "786e067a47d43952f483f4eb107c02f59ea6f93e"
 uuid = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
-version = "1.1.2"
+version = "1.2.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
@@ -85,18 +85,18 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[Meshes]]
 deps = ["CircularArrays", "IterTools", "LinearAlgebra", "Random", "RecipesBase", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "696a4b546d71eba9a5be1e59c7e8fff21d8aa3ab"
+git-tree-sha1 = "f976c1dce1b961639cc608eecc7e249d31b1c2d3"
 uuid = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
-version = "0.6.2"
+version = "0.7.0"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[OffsetArrays]]
 deps = ["Adapt"]
-git-tree-sha1 = "8fe8860da7427b10b996deaf1c8b9a7e96c00d05"
+git-tree-sha1 = "76622f08645764e040b4d7e86d0ff471fd126ae4"
 uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.5.2"
+version = "1.5.3"
 
 [[OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
