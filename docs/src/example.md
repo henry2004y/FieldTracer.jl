@@ -1,14 +1,14 @@
 # Examples
 
-There are two higher level function APIs, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d) for tracing on a 2D mesh and [trace3d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace3d) for tracing on a 3D mesh.
+There are two higher level function APIs, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d-NTuple{6,Any}) for tracing on a 2D mesh and [trace3d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace3d-NTuple{9,Any}) for tracing on a 3D mesh.
 These two functions accept different types of input mesh arguments.
 Currently 3D tracing is only limited to structured mesh.
 
-More examples can be found in the [examples](../../src/examples) folder.
+More examples can be found in the [examples](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples) folder.
 
 ## Structured 2D mesh
 
-We provide 2nd order Euler method [trace2d_euler](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_euler) and 4th order Runge-Kutta method (default) [trace2d_rk4](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_rk4) for tracing on a structured mesh.
+We provide 2nd order Euler method [trace2d_euler](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_euler-NTuple{6,Any}) and 4th order Runge-Kutta method (default) [trace2d_rk4](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_rk4-NTuple{6,Any}) for tracing on a structured mesh.
 
 ```
 using FieldTracer
@@ -26,7 +26,7 @@ trace2d(u, v, startx, starty, gridx, gridy)
 
 ## Unstructured 2D mesh
 
-See the example in [test_unstructured.jl](../../test/test_unstructured.jl).
+See the example in [test_unstructured.jl](https://github.com/henry2004y/FieldTracer.jl/tree/master/test/test_unstructured.jl).
 
 ## Structured 3D mesh
 
@@ -53,7 +53,7 @@ x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
 
 ## Seeding
 
-We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds) for generating pseudo random seeds for the starting points in 2D/3D.
+We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds-Tuple{Any,Any}) for generating pseudo random seeds for the starting points in 2D/3D.
 This ensures consistent sampling of fieldlines across the same points to reduce visual shift effect across multiple frames.
 
 ## Gallery
