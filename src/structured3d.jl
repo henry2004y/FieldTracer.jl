@@ -328,7 +328,7 @@ end
 """
 	 trace3d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 
-3D stream tracing in structured mesh with field in 3D array and grid in range.
+3D stream tracing on structured mesh with field in 3D array and grid in range.
 """
 trace3d(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
    kwargs...) =

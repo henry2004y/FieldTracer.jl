@@ -301,7 +301,7 @@ end
 """
 	 trace2d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 
-2D stream tracing in structured mesh with field in 2D array and grid in range.
+2D stream tracing on structured mesh with field in 2D array and grid in range.
 """
 trace2d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...) =
    trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)

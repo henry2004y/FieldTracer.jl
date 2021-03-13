@@ -8,7 +8,7 @@ const ϵ = 1e-5 # small perturbation
 """
 	 trace2d(mesh::UGrid, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
 
-2D stream tracing in unstructured quadrilateral and triangular mesh.
+2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
 function trace2d(mesh::UnstructuredMesh, vx, vy, xstart, ystart;
    maxIter=1000, maxLen=1000.)
@@ -74,7 +74,7 @@ end
 """
     getCellID(mesh::UnstructuredMesh, x, y)
 
-Return cell ID in the unstructured grid.
+Return cell ID on the unstructured mesh.
 """
 function getCellID(mesh::UnstructuredMesh, point::Point2)
    for i = 1:length(mesh.connec)
