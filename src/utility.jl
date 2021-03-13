@@ -5,11 +5,11 @@ using Random
 export select_seeds
 
 """
-	 select_seeds(x, y, nSeed=100)
+	 select_seeds(x, y; nSeed=100)
 
 Generate `nSeed` seeding points randomly in the grid range `x` and `y`.
-!!! warning If you specify `nSeed`, use the keyword input, otherwise it will be
-overloaded by the 3D version seed generation function.
+If you specify `nSeed`, use the keyword input, otherwise it will be
+overloaded by the 3D version seed generation function!
 """
 function select_seeds(x, y; nSeed=100)
    xmin,xmax = extrema(x)

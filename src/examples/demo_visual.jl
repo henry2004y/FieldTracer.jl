@@ -1,7 +1,7 @@
 # Visual demonstration of the tracing scheme in different analytical field.
 using PyPlot, FieldTracer
 
-include("dipole.jl")
+include("../../test/utility/dipole.jl")
 
 """
     test_trace_asymptote(IsSingle=false)

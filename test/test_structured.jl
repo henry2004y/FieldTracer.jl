@@ -1,6 +1,6 @@
 # Test functions for tracing in different kinds of analytical field.
 
-include("dipole.jl")
+include("utility/dipole.jl")
 
 """
     test_trace_asymptote(IsSingle=false)

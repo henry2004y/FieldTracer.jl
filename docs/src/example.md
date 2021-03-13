@@ -1,17 +1,77 @@
 # Examples
 
+There are two higher level function APIs, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d) for tracing on a 2D mesh and [trace3d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace3d) for tracing on a 3D mesh.
+These two functions accept different types of input mesh arguments.
+Currently 3D tracing is only limited to structured mesh.
+
+More examples can be found in the [examples](../../src/examples) folder.
+
 ## Structured 2D mesh
 
-![](../figures/trace_asymptote.png)
+We provide 2nd order Euler method [trace2d_euler](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_euler) and 4th order Runge-Kutta method (default) [trace2d_rk4](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_rk4) for tracing on a structured mesh.
 
-![](../figures/trace_dipole.png)
-
-* Magnetic field line tracing
-![](../figures/BxBz_y0cut.png)
-
-* Streamline tracing in a 2D Earth magnetosphere simulation
-![](../figures/trace_streamline_2Dmagnetosphere.png)
+```
+using FieldTracer
+x = range(0, 1, step=0.1)
+y = range(0, 1, step=0.1)
+# ndgrid
+gridx = [i for i in x, _ in y]
+gridy = [j for _ in x, j in y]
+u = copy(gridx)
+v = -copy(gridy)
+xstart = 0.1
+ystart = 0.9
+trace2d(u, v, startx, starty, gridx, gridy)
+```
 
 ## Unstructured 2D mesh
 
+See the example in [test_unstructured.jl](../../test/test_unstructured.jl).
+
+## Structured 3D mesh
+
+Tracing on a structured 3D mesh is a natural extension from 2D.
+```
+using FieldTracer, Meshes
+x = range(0, 10, length=15)
+y = range(0, 10, length=20)
+z = range(0, 10, length=25)
+bx = fill(1.0, length(x), length(y), length(z))
+by = fill(1.0, length(x), length(y), length(z))
+bz = fill(1.0, length(x), length(y), length(z))
+xs, ys, zs = 1.0, 1.0, 1.0
+Δx = x[2] - x[1]
+Δy = y[2] - y[1]
+Δz = z[2] - z[1]
+grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
+   (0., 0., 0.),
+   (Δx, Δy, Δz))
+
+# default direction is both
+x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
+```
+
+## Seeding
+
+We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds) for generating pseudo random seeds for the starting points in 2D/3D.
+This ensures consistent sampling of fieldlines across the same points to reduce visual shift effect across multiple frames.
+
+## Gallery
+
+* Tracing in an analytic asymptotic field
+![](../figures/trace_asymptote.png)
+
+* Tracing in a analytic 3D dipole field
+![](../figures/trace_dipole.png)
+
+* Tracing in a numerical 2D magnetic field
+![](../figures/BxBz_y0cut.png)
+
+* Tracing in a 2D equatorial plane Earth magnetosphere simulation
+![](../figures/trace_streamline_2Dmagnetosphere.png)
+
+* Streamline tracing in a 2D triangular mesh around an airfoil
 ![](../figures/trace_streamline_2Dunstructured.png)
+
+* Fieldline tracing near the magnetic null points, compared to the `streamplot` function in Matplotlib
+![](../figures/x_o_point.png)
