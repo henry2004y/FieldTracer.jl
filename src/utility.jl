@@ -1,7 +1,6 @@
 # Utility functions for field tracing.
 
 using Random
-using Statistics: mean
 
 export select_seeds, add_arrow
 
@@ -51,16 +50,15 @@ function add_arrow(line, size=12)
    xdata = line.get_xdata()
    ydata = line.get_ydata()
 
-   position = mean(xdata)
-   # find closest index
-   start_ind = argmin(abs.(xdata .- position))
+   for i = 1:2
+      start_ind = length(xdata) ÷ 3 * i
+      end_ind = start_ind + 1
+      line.axes.annotate("",
+         xytext=(xdata[start_ind], ydata[start_ind]),
+         xy=(xdata[end_ind], ydata[end_ind]),
+         arrowprops=Dict("arrowstyle"=>"-|>", "color"=>color),
+         size=size
+      )
+   end
 
-   end_ind = start_ind + 1
-
-   line.axes.annotate("",
-      xytext=(xdata[start_ind], ydata[start_ind]),
-      xy=(xdata[end_ind], ydata[end_ind]),
-      arrowprops=Dict("arrowstyle"=>"-|>", "color"=>color),
-      size=size
-   )
 end

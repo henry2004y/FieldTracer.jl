@@ -19,8 +19,8 @@ gridx = [i for i in x, _ in y]
 gridy = [j for _ in x, j in y]
 u = copy(gridx)
 v = -copy(gridy)
-xstart = 0.1
-ystart = 0.9
+startx = 0.1
+starty = 0.9
 trace2d(u, v, startx, starty, gridx, gridy)
 ```
 

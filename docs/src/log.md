@@ -87,3 +87,5 @@ In the VTK library, there is a class called `vtkPointLocator`. It is a spatial s
 ## Limitations
 
 * Currently most tracing functions in the package assume regular grid, meaning that the size of each cell is not changing. However, the whole grid information is passed all the way down to the kernel functions, which may be a waste of memory.
+
+* The current seeding function needs improvement: if the number of seeds is small it may not be uniformly sampled visually. One way to do this is first divide the whole domain into multiple chunks of the same size, and then select random seeds from them.
