@@ -59,7 +59,7 @@ This ensures consistent sampling of fieldlines across the same points to reduce 
 ## Arrow
 
 When plotting, it is usually convenient to display an arrow along the line for showing the direction.
-Currently we provide a function [add_arrow](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.add_arrow-Tuple{Any,Any}) which acts on a Matplotlib Line2D object and add an arrow for it.
+Currently we provide a function [add_arrow](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.add_arrow) which acts on a Matplotlib Line2D object and adds an arrow for it.
 
 ## Gallery
 
