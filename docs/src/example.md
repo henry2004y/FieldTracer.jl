@@ -56,6 +56,11 @@ x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
 We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds-Tuple{Any,Any}) for generating pseudo random seeds for the starting points in 2D/3D.
 This ensures consistent sampling of fieldlines across the same points to reduce visual shift effect across multiple frames.
 
+## Arrow
+
+When plotting, it is usually convenient to display an arrow along the line for showing the direction.
+Currently we provide a function [add_arrow](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.add_arrow-Tuple{Any,Any}) which acts on a Matplotlib Line2D object and add an arrow for it.
+
 ## Gallery
 
 * Tracing in an analytic asymptotic field

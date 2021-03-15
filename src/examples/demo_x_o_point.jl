@@ -90,7 +90,8 @@ ystart = 1.0:1.0:3.0 # seed starting point y
 
 for i in axes(xstart,1)
    x1, y1 = trace2d(Bx, By, xstart[i], ystart[i], X, Y; maxstep=3000, ds=0.1, gridType="meshgrid")
-   axs[1].plot(x1, y1, "r--")
+   line = axs[1].plot(x1, y1, "r--")
+   add_arrow(line[1])
 end
 axs[1].plot(0, 0, color="k", marker="o", label="o-type null point")
 axs[1].legend()
