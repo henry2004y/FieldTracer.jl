@@ -10,7 +10,7 @@ const ϵ = 1e-5 # small perturbation
 
 2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
-function trace2d(mesh::UnstructuredMesh, vx, vy, xstart, ystart;
+function trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
    maxIter=1000, maxLen=1000.)
 
    xStream = [fill(xs, maxIter) for xs in xstart]
@@ -72,11 +72,11 @@ function trace2d(mesh::UnstructuredMesh, vx, vy, xstart, ystart;
 end
 
 """
-    getCellID(mesh::UnstructuredMesh, x, y)
+    getCellID(mesh::SimpleMesh, x, y)
 
 Return cell ID on the unstructured mesh.
 """
-function getCellID(mesh::UnstructuredMesh, point::Point2)
+function getCellID(mesh::SimpleMesh, point::Point2)
    for i = 1:length(mesh.connec)
       nodes = mesh.connec[i].list
       if polytopetype(mesh.connec[i]) == Triangle
