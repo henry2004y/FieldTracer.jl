@@ -6,7 +6,8 @@ const Δ = 100000. # distance to the far field point
 const ϵ = 1e-5 # small perturbation
 
 """
-	 trace2d(mesh::UGrid, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
+	 trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
+       maxIter=1000, maxLen=1000.)
 
 2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
@@ -27,9 +28,9 @@ function trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
          Pfar = Pnow + Vec2f(vx[cellID]*Δ, vy[cellID]*Δ)
          nodes = mesh.connec[cellID].list
          
-         if polytopetype(mesh.connec[cellID]) == Quadrangle
+         if mesh[cellID] isa Quadrangle
             nEdge = 4
-         elseif polytopetype(mesh.connec[cellID]) == Triangle
+         elseif mesh[cellID] isa Triangle
             nEdge = 3
          end
 
@@ -68,7 +69,7 @@ function trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
       yStream[i] = yStream[i][1:nIter[i]]
    end
 
-   return xStream, yStream
+   xStream, yStream
 end
 
 """
@@ -79,7 +80,7 @@ Return cell ID on the unstructured mesh.
 function getCellID(mesh::SimpleMesh, point::Point2)
    for i = 1:length(mesh.connec)
       nodes = mesh.connec[i].list
-      if polytopetype(mesh.connec[i]) == Triangle
+      if mesh[i] isa Triangle
          if point ∈ Triangle(mesh.points[nodes[1]], mesh.points[nodes[2]],
             mesh.points[nodes[3]])
             return i

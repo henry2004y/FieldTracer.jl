@@ -38,7 +38,7 @@ function DoBreak(iloc, jloc, iSize, jSize)
    ibreak = false
    if iloc ≥ iSize-1 || jloc ≥ jSize-1; ibreak = true end
    if iloc < 0 || jloc < 0; ibreak = true end
-   return ibreak
+   ibreak
 end
 
 "Create unit vectors of field."
@@ -50,7 +50,7 @@ function normalize_field(ux, uy, dx, dy)
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
    end
-   return fx, fy
+   fx, fy
 end
 
 """
@@ -106,12 +106,12 @@ function Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       nstep = n
    end
 
-   # Return traced points to original coordinate system.
+   # Convert traced points to original coordinate system.
    for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
    end
-   return x[1:nstep], y[1:nstep]
+   x[1:nstep], y[1:nstep]
 end
 
 """
@@ -198,12 +198,12 @@ function RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       nstep = n
    end
 
-   # Return traced points to original coordinate system.
+   # Convert traced points to original coordinate system.
    for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
    end
-   return x[1:nstep], y[1:nstep]
+   x[1:nstep], y[1:nstep]
 end
 
 """
@@ -240,7 +240,7 @@ function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
       yt = vcat(reverse!(y1), y2[2:end])
    end
 
-   return xt, yt
+   xt, yt
 end
 
 """
@@ -278,7 +278,7 @@ function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
       yt = vcat(reverse!(y1), y2[2:end])
    end
 
-   return xt, yt
+   xt, yt
 end
 
 """

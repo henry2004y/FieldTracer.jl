@@ -25,7 +25,7 @@ function DoBreak(iloc, jloc, kloc, iSize, jSize, kSize)
    ibreak = false
    if iloc ≥ iSize-1 || jloc ≥ jSize-1 || kloc ≥ kSize-1; ibreak = true end
    if iloc < 0 || jloc < 0 || kloc < 0; ibreak = true end
-   return ibreak
+   ibreak
 end
 
 "Create unit vectors of field in normalized coordinates."
@@ -38,7 +38,7 @@ function normalize_field(ux, uy, uz, dx, dy, dz)
       fy[i] = uy[i] * dyInv * uInv
       fz[i] = uz[i] * dzInv * uInv
    end
-   return fx, fy, fz
+   fx, fy, fz
 end
 
 """
@@ -122,13 +122,13 @@ function Euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
       nstep = n
    end
 
-   # Return traced points to original coordinate system.
+   # Convert traced points to original coordinate system.
    for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
    end
-   return x[1:nstep], y[1:nstep], z[1:nstep]
+   x[1:nstep], y[1:nstep], z[1:nstep]
 end
 
 
@@ -223,7 +223,7 @@ function RK4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
          nstep = n; break
       end
 
-      # Peform the full step using all substeps
+      # Perform the full step using all substeps
       x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
       y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
       z[n+1] = z[n] + ds/6.0 * (f1z + f2z*2.0 + f3z*2.0 + f4z)
@@ -231,13 +231,13 @@ function RK4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
       nstep = n
    end
 
-   # Return traced points to original coordinate system.
+   # Convert traced points to original coordinate system.
    for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
    end
-   return x[1:nstep], y[1:nstep], z[1:nstep]
+   x[1:nstep], y[1:nstep], z[1:nstep]
 end
 
 """
@@ -277,7 +277,7 @@ function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
       zt = vcat(reverse!(z1), z2[2:end])
    end
 
-   return xt, yt, zt
+   xt, yt, zt
 end
 
 
@@ -302,7 +302,7 @@ function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
    xt, yt, zt = RK4(maxstep, ds, startx, starty, startz, gridx, gridy, gridz,
       fx, fy, fz)
 
-   return xt, yt, zt
+   xt, yt, zt
 end
 
 """
