@@ -2,15 +2,11 @@
 
 Streamline and trajectory are related topics in physical modeling, common seen in fluid and particle simulations.
 
-## Streamline Tracing
-
 First make it work, then make it better and fast.
 
-I found an approach called Pollock method.
+One approach is called Pollock method.
 
-I need an adaptive step control integration scheme like `rk45`. From DifferentialEquations.jl, there are hundreds of schemes we can choose from, which are much better than implementing our own fragile ODE solver!
-
-### Tracing in Unstructured Grid
+## Tracing in Unstructured Grid
 
 Given an unstructured grid with node points and connectivity, how should you do the streamline tracing?
 
@@ -27,24 +23,13 @@ Some questions during the process:
 * How to improve the search speed?
 * How to improve accuracy?
 
-A package [UnstructuredGrids.jl](https://github.com/gridap/UnstructuredGrids.jl) already exists.
-I take advantage of this package and quickly build a 2D stream tracer on unstructured 2D grid based on the brute force algorithm.
-Unfortunately it is no longer maintained.
-I substituted it with [Meshes.jl](https://github.com/JuliaGeometry/Meshes.jl), which provides a cleaner interface and seems to be carefully designed.
-
-Actually, the brute force algorithm may not be as bad as you think in terms of accuracy. Finite volume method uses one value per cell to represent the solution space, therefore it is just cheating to use higher order method for stream tracing.
-
-An example is shown for the 2D streamline tracing in the unstructured triangular mesh for the famous airfoil problem. The blue lines are the analytic stream functions derived from incompressible Euler equations which are calculated numerically. Three colored lines are displayed with dots representing the footprint inside each cell.
-
-An extension to 3D is possible and I may work on it in the future.
-
-### MATLAB
+## MATLAB
 
 There is an implementation of streamline tracing in Matlab called tristream. It requires nodal data.
 
 Inside the function, there is an intrinsic function called `pointLocation`, which returns the index of cell where the point locates.
 
-### yt
+## YT
 
 There is another implementation in yt library, which has many similarities to the one I borrowed from SpacePy.
 
@@ -58,19 +43,19 @@ The implementation of streamlining in yt is described below.
 
   * While the length of the streamline is less than the requested length:
 
-    1. Find the brick that contains the current position
+    1. Find the brick that contains the current position.
 
     2. If not already present, generate vertex-centered data for the vector fields defining the streamline.
 
-    3. While inside the brick
+    3. While inside the brick:
 
-      1. Integrate the streamline path using a Runge-Kutta 4th order method and the vertex centered data.
+      1. integrate the streamline path using a Runge-Kutta 4th order method and the vertex centered data.
 
-      2. During the intermediate steps of each RK4 step, if the position is updated to outside the current brick, interrupt the integration and locate a new brick at the intermediate position.
+      2. during the intermediate steps of each RK4 step, if the position is updated to outside the current brick, interrupt the integration and locate a new brick at the intermediate position.
 
 3. The set of streamline positions are stored in the `Streamlines` object.
 
-### VTK
+## VTK
 
 In the VTK library, there is a class called `vtkPointLocator`. It is a spatial search object to quickly locate points in 3D. `vtkPointLocator` works by dividing a specified region of space into a regular array of "rectangular" buckets, and then keeping a list of points that lie in each bucket. Typical operation involves giving a position in 3D and finding the closest point. It supports both nodal data and cell data.
 

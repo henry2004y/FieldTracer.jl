@@ -80,5 +80,7 @@ Currently we provide a function [add_arrow](https://henry2004y.github.io/FieldTr
 * Streamline tracing in a 2D triangular mesh around an airfoil
 ![](../figures/trace_streamline_2Dunstructured.png)
 
+An example is shown for the 2D streamline tracing in the unstructured triangular mesh for the famous airfoil problem. The blue lines are the analytic stream functions derived from incompressible Euler equations which are calculated numerically. Three colored lines are displayed with dots representing the footprints inside each cell.
+
 * Fieldline tracing near the magnetic null points, compared to the `streamplot` function in Matplotlib
 ![](../figures/x_o_point.png)
