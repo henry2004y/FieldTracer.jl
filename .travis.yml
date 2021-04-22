@@ -4,6 +4,7 @@ notifications:
   email: false
 julia:
   - 1.6
+dist: focal
 os:
   - linux
   - osx
@@ -14,8 +15,6 @@ arch:
 cache:
   directories:
     - ~/.julia/artifacts
-python:
-  - "3.9"
 install:
   - pip install matplotlib
 jobs:
