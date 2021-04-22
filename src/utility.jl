@@ -1,6 +1,6 @@
 # Utility functions for field tracing.
 
-using Random
+using Random, PyCall, PyPlot
 
 export select_seeds, add_arrow
 
@@ -42,13 +42,17 @@ function select_seeds(x, y, z; nSeed=100)
    return seeds
 end
 
-"Add an arrow to a Line2D object `line` from Matplotlib."
+"Add an arrow to the object `line` from Matplotlib."
 function add_arrow(line, size=12)
 
    color = line.get_color()
 
-   xdata = line.get_xdata()
-   ydata = line.get_ydata()
+   if pybuiltin(:isinstance)(line, matplotlib.lines.Line2D)
+      xdata, ydata = line.get_data()
+   else
+      @error "mplot3d does not support true 3D plotting!"
+      xdata, ydata, zdata = line.get_data_3d()
+   end
 
    for i = 1:2
       start_ind = length(xdata) ÷ 3 * i

@@ -13,7 +13,7 @@ First make it work, then make it better and fast.
 
 I found an approach called Pollock method.
 
-I need an adaptive step control integration scheme like rk45.
+I need an adaptive step control integration scheme like `rk45`. From DifferentialEquations.jl, there are hundreds of schemes we can choose from, which are much better than implementing our own fragile ODE solver!
 
 ### Tracing in Unstructured Grid
 
@@ -89,3 +89,5 @@ In the VTK library, there is a class called `vtkPointLocator`. It is a spatial s
 * Currently most tracing functions in the package assume regular grid, meaning that the size of each cell is not changing. However, the whole grid information is passed all the way down to the kernel functions, which may be a waste of memory.
 
 * The current seeding function needs improvement: if the number of seeds is small it may not be uniformly sampled visually. One way to do this is first divide the whole domain into multiple chunks of the same size, and then select random seeds from them.
+
+* As of now, the plotting functionality relies on Matplotlib. Matplotlib only has fake 3D plots, and there are many difficulties such as creating arrows in 3D. I really want to find a better 3D visualization tool!
