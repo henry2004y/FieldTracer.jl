@@ -6,12 +6,14 @@ version = "0.1.0"
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
-PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 Meshes = "0.12"
+PyPlot = "2.9"
+Requires = "1.1"
 julia = "1"
 
 [extras]
