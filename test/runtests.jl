@@ -78,7 +78,7 @@ using Test
       @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
 
       # RK4 by default
-      x1, y1, z1 = trace3d(bx, bz, bz, xs, ys, zs, x, y, z;
+      x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, x, y, z;
          ds=0.2, maxstep=200, direction="forward")
 
       @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]

@@ -1,17 +1,17 @@
 # 2D Field tracing on a unstructured grid.
 
-export getCellID, trace2d
+export getCellID, trace
 
 const Δ = 100000. # distance to the far field point
 const ϵ = 1e-5 # small perturbation
 
 """
-	 trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
+	 trace(mesh::SimpleMesh, vx, vy, xstart, ystart;
        maxIter=1000, maxLen=1000.)
 
 2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
-function trace2d(mesh::SimpleMesh, vx, vy, xstart, ystart;
+function trace(mesh::SimpleMesh, vx, vy, xstart, ystart;
    maxIter=1000, maxLen=1000.)
 
    xStream = [fill(xs, maxIter) for xs in xstart]

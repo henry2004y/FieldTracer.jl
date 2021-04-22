@@ -1,6 +1,6 @@
 # 3D field tracing on a regular grid.
 
-export trace3d, trace3d_euler, trace3d_rk4
+export trace, trace3d_euler, trace3d_rk4
 
 """
     trilin_reg(x, y, z, Q)
@@ -341,11 +341,11 @@ function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
 end
 
 """
-	 trace3d(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
+	 trace(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 
 3D stream tracing on structured mesh with field in 3D array and grid in range.
 """
-trace3d(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
+trace(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
    kwargs...) =
    trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz,
    gridx, gridy, gridz; kwargs...)

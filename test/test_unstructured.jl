@@ -29,7 +29,7 @@ function test_trace_unstructured2D()
    vy = fill(0.3, 6)
    start = [1.5, 1.5]
    
-   xs, ys = trace2d(mesh, vx, vy, [start[1]], [start[2]])
+   xs, ys = trace(mesh, vx, vy, [start[1]], [start[2]])
 
    if length(xs[1]) == 4 && xs[1][4] ≈ 4.000005 && ys[1][4] ≈ 3.000003
       return true
