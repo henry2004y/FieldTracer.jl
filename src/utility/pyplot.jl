@@ -2,7 +2,12 @@
 
 export add_arrow
 
-"Add an arrow to the object `line` from Matplotlib."
+"""
+    add_arrow(line, size=12)
+
+Add an arrow of `size` to the object `line` from Matplotlib. This requires
+importing PyPlot, and only works for Line2D.
+"""
 function add_arrow(line, size=12)
 
    color = line.get_color()
