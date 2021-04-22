@@ -28,6 +28,8 @@ jobs:
           - windows-latest
         arch:
           - x64
+        env:
+          - PYTHON=Conda LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
     steps:
       - name: Install dependencies
         run: |
@@ -58,6 +60,9 @@ jobs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+          pip install matplotlib
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
