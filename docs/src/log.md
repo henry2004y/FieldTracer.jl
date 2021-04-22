@@ -2,11 +2,6 @@
 
 Streamline and trajectory are related topics in physical modeling, common seen in fluid and particle simulations.
 
-The original version is in C from LANL. The algorithm has been reimplemented in Julia.
-Calling the native functions in Julia is about 5 times faster than calling the dynmic C library.
-Some of the tests originates from [SpacePy](https://github.com/spacepy/spacepy).
-A bug has been fixed for the nonuniform `dx`, `dy` and `dz` grid.
-
 ## Streamline Tracing
 
 First make it work, then make it better and fast.
@@ -83,11 +78,3 @@ In the VTK library, there is a class called `vtkPointLocator`. It is a spatial s
 
 !!! note
     Many other types of spatial locators have been developed such as octrees and kd-trees. These are often more efficient for the operations described here.
-
-## Limitations
-
-* Currently most tracing functions in the package assume regular grid, meaning that the size of each cell is not changing. However, the whole grid information is passed all the way down to the kernel functions, which may be a waste of memory.
-
-* The current seeding function needs improvement: if the number of seeds is small it may not be uniformly sampled visually. One way to do this is first divide the whole domain into multiple chunks of the same size, and then select random seeds from them.
-
-* As of now, the plotting functionality relies on Matplotlib. Matplotlib only has fake 3D plots, and there are many difficulties such as creating arrows in 3D. I really want to find a better 3D visualization tool!
