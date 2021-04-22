@@ -299,9 +299,16 @@ function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
 end
 
 """
-	 trace(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
+	 trace(fieldx, fieldy, startx, starty, gridx, gridy; alg=RK4(), kwargs...)
 
 2D stream tracing on structured mesh with field in 2D array and grid in range.
 """
-trace(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...) =
-   trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
+function trace(args...; alg::Algorithm=RK4(), kwargs...)
+   
+   if alg isa RK4
+      trace2d_rk4(args...; kwargs...)
+   elseif alg isa Euler
+      trace2d_euler(args...; kwargs...)
+   end
+
+end

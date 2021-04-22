@@ -1,10 +1,13 @@
 # Examples
 
-There are two higher level function APIs, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d-NTuple{6,Any}) for tracing on a 2D mesh and [trace3d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace3d-NTuple{9,Any}) for tracing on a 3D mesh.
-These two functions accept different types of input mesh arguments.
-Currently 3D tracing is only limited to structured mesh.
+There is one higher level function API, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace-NTuple{6,%20Any}), for tracing on a 2D and 3D mesh.
+This function accepts different types of input mesh arguments.[^1]
+The default scheme is `RK4()`, but users can also switch to other options like `Euler()`.[^2]
 
 More examples can be found in the [examples](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples) folder.
+
+[^1]: Currently 3D tracing is only limited to structured mesh.
+[^2]: The scheme switch currently only works for Cartesian grid.
 
 ## Structured 2D mesh
 
@@ -21,7 +24,7 @@ u = copy(gridx)
 v = -copy(gridy)
 startx = 0.1
 starty = 0.9
-trace2d(u, v, startx, starty, gridx, gridy)
+trace(u, v, startx, starty, gridx, gridy)
 ```
 
 ## Unstructured 2D mesh
@@ -48,7 +51,7 @@ grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
    (Δx, Δy, Δz))
 
 # default direction is both
-x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
+x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, grid, Euler(); ds=0.2, maxstep=200)
 ```
 
 ## Seeding

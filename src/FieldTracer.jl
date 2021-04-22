@@ -4,6 +4,13 @@ module FieldTracer
 
 using Meshes, Requires
 
+export Euler, RK4
+
+abstract type Algorithm end
+
+struct Euler <: Algorithm end
+struct RK4 <: Algorithm end
+
 include("structured2d.jl")
 include("structured3d.jl")
 include("unstructured2d.jl")

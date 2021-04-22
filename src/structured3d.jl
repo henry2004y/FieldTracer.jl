@@ -341,11 +341,19 @@ function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
 end
 
 """
-	 trace(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
+	 trace(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
+       alg=RK4(), kwargs...)
+    trace(fieldx, fieldy, fieldz, startx, starty, startz, grid::CartesianGrid;
+		 alg=RK4(), maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
 
 3D stream tracing on structured mesh with field in 3D array and grid in range.
 """
-trace(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
-   kwargs...) =
-   trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz,
-   gridx, gridy, gridz; kwargs...)
+function trace(args...; alg::Algorithm=RK4(), kwargs...)
+      
+   if alg isa RK4
+      trace3d_rk4(args...; kwargs...)
+   elseif alg isa Euler
+      trace3d_euler(args...; kwargs...)
+   end
+
+end
