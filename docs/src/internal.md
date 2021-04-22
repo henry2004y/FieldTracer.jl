@@ -3,7 +3,7 @@
 ## Public APIs
 
 ```@autodocs
-Modules = [Vlasiator]
+Modules = [FieldTracer]
 Private = false
 Order = [:constant, :type, :function]
 ```
@@ -11,13 +11,13 @@ Order = [:constant, :type, :function]
 ## PyPlot helpers
 
 ```@autodocs
-Modules = [Vlasiator]
+Modules = [FieldTracer]
 Pages   = ["utility/pyplot.jl"]
 ```
 
 ## Private APIs
 
 ```@autodocs
-Modules = [Vlasiator]
+Modules = [FieldTracer]
 Public = false
 ```
