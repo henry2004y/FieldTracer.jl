@@ -87,3 +87,6 @@ An example is shown for the 2D streamline tracing in the unstructured triangular
 
 * Fieldline tracing near the magnetic null points, compared to the `streamplot` function in Matplotlib
 ![](../figures/x_o_point.png)
+
+* Fieldline tracing near Ganymede's upstream magnetopause
+![](../figures/trace_magnetopause_ganymede.png)
