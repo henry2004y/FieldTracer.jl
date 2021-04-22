@@ -25,7 +25,7 @@ end
 function onclick(event, axs, Bx, By, X, Y)
    xs, ys = event.xdata, event.ydata
    u0 = [xs, ys]
-   x1, y1 = trace2d(Bx, By, xs, ys, X, Y; maxstep=3000, ds=0.1, gridType="ndgrid")
+   x1, y1 = trace(Bx, By, xs, ys, X, Y; maxstep=3000, ds=0.1, gridType="ndgrid")
    line = plot(x1, y1, "r--")
    add_arrow(line[1])
 end
@@ -50,7 +50,7 @@ xstart = [1.0, 3.0, 1.0] # seed starting point x
 ystart = [0.0, 0.0, 1.0] # seed starting point y
 
 for i in axes(xstart,1)
-   x1, y1 = trace2d(B[1,:,:], B[2,:,:], xstart[i], ystart[i], X, Y; maxstep=3000, ds=0.1, gridType="ndgrid")
+   x1, y1 = trace(B[1,:,:], B[2,:,:], xstart[i], ystart[i], X, Y; maxstep=3000, ds=0.1, gridType="ndgrid")
    axs.plot(x1, y1, "r--")
 end
 axs.plot(0, 0, color="k", marker="o", label="x-type null point")

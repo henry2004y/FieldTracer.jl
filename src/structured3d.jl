@@ -248,9 +248,9 @@ The field can be in both `meshgrid` or `ndgrid` (default) format.
 Supporting `direction` of {"both","forward","backward"}.
 """
 function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
-   gridy, gridz; maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+   gridy, gridz; maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-   if gridType == "ndgrid"
+   if gridtype == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
    else # meshgrid
       fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
@@ -288,9 +288,9 @@ regular grid with coordinates `gridx`, `gridy`, `gridz`.
 The field can be in both `meshgrid` or `ndgrid` (default) format.
 """
 function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
-   gridy, gridz; maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+   gridy, gridz; maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-   if gridType == "ndgrid"
+   if gridtype == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
    else # meshgrid
       fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
@@ -320,7 +320,7 @@ end
 """
     trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
        grid::CartesianGrid;
-		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 """
 function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
    grid::CartesianGrid; kwargs...)

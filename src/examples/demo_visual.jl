@@ -4,16 +4,16 @@ using PyPlot, FieldTracer
 include("../../test/utility/dipole.jl")
 
 """
-    test_trace_asymptote(IsSingle=false)
+    test_trace_asymptote(issingle=false)
 
 Test streamline tracing by plotting vectors and associated streamlines through a
 simple velocity field where Vx=x, Vy=-y. Support for single and double precision
 data.
 """
-function test_trace_asymptote(IsSingle=false)
+function test_trace_asymptote(issingle=false)
 
    # Start by creating a velocity vector field.
-   if IsSingle
+   if issingle
       xmax, ymax = 200.0f0, 20.0f0
       x = -10.0f0:0.25f0:xmax
       y = -10.0f0:0.25f0:ymax
@@ -26,7 +26,7 @@ function test_trace_asymptote(IsSingle=false)
    xgrid = [i for j in y, i in x]
    ygrid = [j for j in y, i in x]
 
-   if IsSingle
+   if issingle
       vx = xgrid * 1.0f0
       vy = ygrid * -1.0f0
 
@@ -40,16 +40,18 @@ function test_trace_asymptote(IsSingle=false)
       ystart = 10.0
    end
 
-   x1, y1 = trace2d_rk4(vx, vy, xstart, ystart, x, y, ds=0.1)
-   x2, y2 = trace2d_rk4(vx, vy, xstart, ystart, x, y, ds=0.5)
-   x3, y3 = trace2d_rk4(vx, vy, xstart, ystart, x, y, ds=1.0)
-   x4, y4 = trace2d_eul(vx, vy, xstart, ystart, x, y, ds=0.1)
-   x5, y5 = trace2d_eul(vx, vy, xstart, ystart, x, y, ds=0.5)
-   x6, y6 = trace2d_eul(vx, vy, xstart, ystart, x, y, ds=1.0)
+   gridtype = "meshgrid"
+
+   x1, y1 = trace(vx, vy, xstart, ystart, x, y; alg=RK4(), ds=0.1, gridtype)
+   x2, y2 = trace(vx, vy, xstart, ystart, x, y; alg=RK4(), ds=0.5, gridtype)
+   x3, y3 = trace(vx, vy, xstart, ystart, x, y; alg=RK4(), ds=1.0, gridtype)
+   x4, y4 = trace(vx, vy, xstart, ystart, x, y; alg=Euler(), ds=0.1, gridtype)
+   x5, y5 = trace(vx, vy, xstart, ystart, x, y; alg=Euler(), ds=0.5, gridtype)
+   x6, y6 = trace(vx, vy, xstart, ystart, x, y; alg=Euler(), ds=1.0, gridtype)
 
    # analytical solution const = x*y
    c = xstart * ystart
-   if IsSingle
+   if issingle
       x_anly = 1.0f0:0.001f0:xmax
    else
       x_anly = 1.0:0.001:xmax
@@ -66,7 +68,7 @@ function test_trace_asymptote(IsSingle=false)
    ax1.plot(x5, y5, "g--", label="Euler ds=0.5", linewidth=.75)
    ax1.plot(x6, y6, "g:",  label="Euler ds=1.0", linewidth=.75)
    ax1.legend(loc="upper right")
-   if IsSingle
+   if issingle
       ax1.set_title("Runge Kutta 4 vs Euler's: Asymptotic Field, Single Precision")
    else
       ax1.set_title("Runge Kutta 4 vs Euler's: Asymptotic Field, Double Precision")
@@ -119,12 +121,13 @@ function test_trace_dipole()
    # Trace through this field.
    xstart = 10.0 # ystart = 25.0
    ds = 0.1
+   gridtype = "meshgrid"
    for ystart in 0.:5.:31.
-      x1, y1 = trace2d_rk4(bx, by, xstart, ystart, x, y, ds=ds)
+      x1, y1 = trace(bx, by, xstart, ystart, x, y; alg=RK4(), ds, gridtype)
       l1 = ax2.plot(x1,y1,"b")[1]
       ax3.plot(x1,y1,"b"); ax4b.plot(x1,y1,"b")
       ax5.plot(x1,y1,"b"); ax4a.plot(x1,y1,"b")
-      x2, y2 = trace2d_eul(bx, by, xstart, ystart, x, y, ds=ds)
+      x2, y2 = trace(bx, by, xstart, ystart, x, y; alg=Euler(), ds, gridtype)
       l2 = ax2.plot(x2,y2,"r")[1]
       ax3.plot(x2,y2,"r"); ax4b.plot(x2,y2,"r")
       ax5.plot(x2,y2,"r"); ax4a.plot(x2,y2,"r")

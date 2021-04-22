@@ -205,7 +205,7 @@ end
 
 """
 	 trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
-		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Runge Kutta 4. Slower than
@@ -213,9 +213,9 @@ Euler, but more accurate. The higher accuracy allows for larger step sizes `ds`.
 See also [`trace2d_euler`](@ref).
 """
 function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
-   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+   maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-   if gridType == "ndgrid"
+   if gridtype == "ndgrid"
       fx = fieldx
       fy = fieldy
    else # meshgrid
@@ -242,7 +242,7 @@ end
 
 """
 	 trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
-		 maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
 Given a 2D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Euler's method, which is faster
@@ -251,9 +251,9 @@ but less accurate than RK4. Only valid for regular grid with coordinates' range
 format. Supporting `direction` of {"both","forward","backward"}.
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
-   maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+   maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-   if gridType == "ndgrid"
+   if gridtype == "ndgrid"
       fx = fieldx
       fy = fieldy
    else # meshgrid

@@ -54,10 +54,10 @@ x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=20
 
 ## Seeding
 
-We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds-Tuple{Any,Any}) for generating pseudo random seeds for the starting points in 2D/3D.
+We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds-Tuple{Any,%20Any}) for generating pseudo random seeds for the starting points in 2D/3D.
 This ensures consistent sampling of fieldlines across the same points to reduce visual shift effect across multiple frames.
 
-Furthermore, we can select seeds interactively on the figure and plot on-the-fly. See the example [demo_interactive_select.jl](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples/demo_interactive_select.jl).
+Furthermore, we can select seeds interactively on the figure and plot on-the-fly. See the example [demo\_interactive\_select.jl](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples/demo_interactive_select.jl).
 
 ## Arrow
 
