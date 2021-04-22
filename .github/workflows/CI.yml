@@ -13,6 +13,8 @@ on:
       - 'README.md'
 env:
   JULIA_NUM_THREADS: 1
+  PYTHON: Conda
+  LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -28,8 +30,6 @@ jobs:
           - windows-latest
         arch:
           - x64
-        env:
-          - PYTHON=Conda LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
     steps:
       - name: Install dependencies
         run: |
