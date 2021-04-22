@@ -1,6 +1,6 @@
 # 2D Field tracing on a unstructured grid.
 
-export getCellID, trace
+export trace
 
 const Δ = 100000. # distance to the far field point
 const ϵ = 1e-5 # small perturbation

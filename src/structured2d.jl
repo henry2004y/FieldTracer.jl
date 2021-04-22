@@ -1,7 +1,5 @@
 # 2D Field tracing on a regular grid.
 
-export trace, trace2d_rk4, trace2d_euler
-
 """
     bilin_reg(x, y, Q00, Q01, Q10, Q11)
 
@@ -296,19 +294,4 @@ function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
    gridy = range(gridmin[2], gridmax[2], step=Δx[2])
 
    trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
-end
-
-"""
-	 trace(fieldx, fieldy, startx, starty, gridx, gridy; alg=RK4(), kwargs...)
-
-2D stream tracing on structured mesh with field in 2D array and grid in range.
-"""
-function trace(args...; alg::Algorithm=RK4(), kwargs...)
-   
-   if alg isa RK4
-      trace2d_rk4(args...; kwargs...)
-   elseif alg isa Euler
-      trace2d_euler(args...; kwargs...)
-   end
-
 end

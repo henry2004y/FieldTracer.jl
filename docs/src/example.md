@@ -1,8 +1,8 @@
 # Examples
 
-There is one higher level function API, [trace2d](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace-NTuple{6,%20Any}), for tracing on a 2D and 3D mesh.
+There is one higher level function API, [trace](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace-Tuple), for tracing on a 2D and 3D mesh.
 This function accepts different types of input mesh arguments.[^1]
-The default scheme is `RK4()`, but users can also switch to other options like `Euler()`.[^2]
+The default scheme is 4th order Runge-Kutta method `RK4()`, but users can also switch to other options like 2nd order Euler method `Euler()`.[^2]
 
 More examples can be found in the [examples](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples) folder.
 
@@ -10,8 +10,6 @@ More examples can be found in the [examples](https://github.com/henry2004y/Field
 [^2]: The scheme switch currently only works for Cartesian grid.
 
 ## Structured 2D mesh
-
-We provide 2nd order Euler method [trace2d_euler](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_euler-NTuple{6,Any}) and 4th order Runge-Kutta method (default) [trace2d_rk4](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace2d_rk4-NTuple{6,Any}) for tracing on a structured mesh.
 
 ```
 using FieldTracer
@@ -51,7 +49,7 @@ grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
    (Δx, Δy, Δz))
 
 # default direction is both
-x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, grid, Euler(); ds=0.2, maxstep=200)
+x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=200)
 ```
 
 ## Seeding
