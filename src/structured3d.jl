@@ -299,8 +299,23 @@ function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
       fx, fy, fz = permutedims(fieldx), permutedims(fieldy), permutedims(fieldz)
    end
 
-   xt, yt, zt = RK4(maxstep, ds, startx, starty, startz, gridx, gridy, gridz,
-      fx, fy, fz)
+   if direction == "forward"
+      xt, yt, zt = RK4(maxstep, ds, startx, starty, startz, gridx, gridy, gridz,
+         fx, fy, fz)
+   elseif direction == "backward"
+      xt, yt, zt = RK4(maxstep, ds, startx, starty, startz, gridx, gridy, gridz,
+         -fx, -fy, -fz)
+   else
+      x1, y1, z1 = RK4(floor(Int,maxstep/2), ds, startx, starty, startz,
+         gridx, gridy, gridz, -fx, -fy, -fz)
+      blen = length(x1)
+      x2, y2, z2 = RK4(maxstep-blen, ds, startx, starty, startz,
+         gridx, gridy, gridz, fx, fy, fz)
+      # concatenate with duplicates removed
+      xt = vcat(reverse!(x1), x2[2:end])
+      yt = vcat(reverse!(y1), y2[2:end])
+      zt = vcat(reverse!(z1), z2[2:end])
+   end
 
    xt, yt, zt
 end

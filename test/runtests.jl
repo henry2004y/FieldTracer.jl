@@ -43,7 +43,7 @@ using Test
       grid = CartesianGrid((length(x)-1,length(y)-1),(0.,0.),(0.1,0.1))
 
       # default direction is both
-      xt, yt = trace2d_euler(u, v, xstart, ystart, grid, maxstep=maxstep, ds=ds)
+      xt, yt = trace2d_euler(u, v, xstart, ystart, grid; maxstep, ds)
 
       @test length(xt) == 148
 
@@ -72,12 +72,14 @@ using Test
       xs, ys, zs = 1.0, 1.0, 1.0
    
       # Euler 2nd order
-      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, x, y, z, ds=0.2, maxstep=200)
+      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, x, y, z;
+         ds=0.2, maxstep=200)
 
       @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
 
       # RK4 by default
-      x1, y1, z1 = trace3d(bx, bz, bz, xs, ys, zs, x, y, z, ds=0.2, maxstep=200)
+      x1, y1, z1 = trace3d(bx, bz, bz, xs, ys, zs, x, y, z;
+         ds=0.2, maxstep=200, direction="forward")
 
       @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
 
@@ -90,7 +92,8 @@ using Test
          (Δx, Δy, Δz))
 
       # default direction is both
-      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid, ds=0.2, maxstep=200)
+      x1, y1, z1 = trace3d_euler(bx, bz, bz, xs, ys, zs, grid;
+         ds=0.2, maxstep=200)
 
       @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
    end
