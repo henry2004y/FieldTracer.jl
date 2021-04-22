@@ -52,14 +52,14 @@ function normalize_field(ux, uy, dx, dy)
 end
 
 """
-    Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+    euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
 Fast 2D tracing using Euler's method. It takes at most `maxstep` with step size
 `ds` tracing the vector field given by `ux,uy` starting from `(startx,starty)`
 in the Cartesian grid specified by ranges `xGrid` and `yGrid`.
 Return footprints' coordinates in (`x`,`y`).
 """
-function Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
@@ -113,12 +113,12 @@ function Euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 end
 
 """
-    RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+    rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
 Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and
-constant step size `ds`. See also [`Euler`](@ref).
+constant step size `ds`. See also [`euler`](@ref).
 """
-function RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
@@ -139,7 +139,6 @@ function RK4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
    nstep = 0
    # Perform tracing using RK4
    for n = 1:maxstep-1
-      # See Euler's method for more descriptive comments.
       # SUBSTEP #1
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -225,14 +224,14 @@ function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
    end
 
    if direction == "forward"
-      xt, yt = RK4(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+      xt, yt = rk4(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
    elseif direction == "backward"
-      xt, yt = RK4(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
+      xt, yt = rk4(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
    else
-      x1, y1 = RK4(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
+      x1, y1 = rk4(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
          -fx, -fy)
       blen = length(x1)
-      x2, y2 = RK4(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
+      x2, y2 = rk4(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
       # concatenate with duplicates removed
       xt = vcat(reverse!(x1), x2[2:end])
       yt = vcat(reverse!(y1), y2[2:end])
@@ -263,14 +262,14 @@ function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
    end
 
    if direction == "forward"
-      xt, yt = Euler(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+      xt, yt = euler(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
    elseif direction == "backward"
-      xt, yt = Euler(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
+      xt, yt = euler(maxstep, ds, startx, starty, gridx, gridy, -fx, -fy)
    else
-      x1, y1 = Euler(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
+      x1, y1 = euler(floor(Int,maxstep/2), ds, startx, starty, gridx, gridy,
          -fx, -fy)
       blen = length(x1)
-      x2, y2 = Euler(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
+      x2, y2 = euler(maxstep-blen, ds, startx, starty, gridx, gridy, fx, fy)
       # concatenate with duplicates removed
       xt = vcat(reverse!(x1), x2[2:end])
       yt = vcat(reverse!(y1), y2[2:end])

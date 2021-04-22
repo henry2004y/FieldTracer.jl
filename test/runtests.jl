@@ -32,11 +32,11 @@ using Test
       xstart = 0.1
       ystart = 0.9
 
-      xt, yt = FieldTracer.Euler(maxstep, ds, xstart, ystart, x, y, u, v)
+      xt, yt = FieldTracer.euler(maxstep, ds, xstart, ystart, x, y, u, v)
 
       @test length(xt) == 141
 
-      xt, yt = FieldTracer.RK4(maxstep, ds, xstart, ystart, x, y, u, v)
+      xt, yt = FieldTracer.rk4(maxstep, ds, xstart, ystart, x, y, u, v)
 
       @test length(xt) == 140
 
