@@ -121,7 +121,7 @@ function euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
    end
 
    # Convert traced points to original coordinate system.
-   for i = 1:nstep
+   @inbounds for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
@@ -229,7 +229,7 @@ function rk4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
    end
 
    # Convert traced points to original coordinate system.
-   for i = 1:nstep
+   @inbounds for i = 1:nstep
       x[i] = x[i]*dx + xGrid[1]
       y[i] = y[i]*dy + yGrid[1]
       z[i] = z[i]*dz + zGrid[1]
@@ -286,6 +286,7 @@ Given a 3D vector field, trace a streamline from a given point to the edge of
 the vector field. The field is integrated using Euler's method. Only valid for
 regular grid with coordinates `gridx`, `gridy`, `gridz`.
 The field can be in both `meshgrid` or `ndgrid` (default) format.
+See also [`trace3d_euler`](@ref).
 """
 function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx,
    gridy, gridz; maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
@@ -321,6 +322,8 @@ end
     trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
        grid::CartesianGrid;
 		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
+
+See also [`trace3d_rk4`](@ref).
 """
 function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz,
    grid::CartesianGrid; kwargs...)

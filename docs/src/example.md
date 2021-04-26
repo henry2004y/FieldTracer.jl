@@ -3,6 +3,7 @@
 There is one higher level function API, [trace](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.trace-Tuple), for tracing on a 2D and 3D mesh.
 This function accepts different types of input mesh arguments.[^1]
 The default scheme is 4th order Runge-Kutta method `RK4()`, but users can also switch to other options like 2nd order Euler method `Euler()`.[^2]
+User can also specify the maximum number of tracing steps via keyword `maxstep`, the step size in normalized coordinates [0,1] `ds`, order of grid `gridtype`, and tracing directions `direction` chosen between `"both","forward","backward"`.
 
 More examples can be found in the [examples](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples) folder.
 
