@@ -83,9 +83,9 @@ function euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
    dz = zGrid[2] - zGrid[1]
-   x[1] = (startx-xGrid[1]) / dx
-   y[1] = (starty-yGrid[1]) / dy
-   z[1] = (startz-zGrid[1]) / dz
+   x[1] = (startx - xGrid[1]) / dx
+   y[1] = (starty - yGrid[1]) / dy
+   z[1] = (startz - zGrid[1]) / dz
 
    # Create unit vectors from full vector field
    f1, f2, f3 = normalize_field(ux, uy, uz, dx, dy, dz)
@@ -151,9 +151,9 @@ function rk4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
    dz = zGrid[2] - zGrid[1]
-   x[1] = (startx-xGrid[1]) / dx
-   y[1] = (starty-yGrid[1]) / dy
-   z[1] = (startz-zGrid[1]) / dz
+   x[1] = (startx - xGrid[1]) / dx
+   y[1] = (starty - yGrid[1]) / dy
+   z[1] = (startz - zGrid[1]) / dz
 
    # Create unit vectors from full vector field
    fx, fy, fz = normalize_field(ux, uy, uz, dx, dy, dz)

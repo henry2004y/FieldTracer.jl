@@ -72,8 +72,8 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
-   x[1] = (startx-xGrid[1]) / dx
-   y[1] = (starty-yGrid[1]) / dy
+   x[1] = (startx - xGrid[1]) / dx
+   y[1] = (starty - yGrid[1]) / dy
 
    # Create unit vectors from full vector field
    f1, f2 = normalize_field(ux, uy, dx, dy)
@@ -131,11 +131,14 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
    # Get starting points in normalized/array coordinates
    dx = xGrid[2] - xGrid[1]
    dy = yGrid[2] - yGrid[1]
-   x[1] = (startx-xGrid[1]) / dx
-   y[1] = (starty-yGrid[1]) / dy
+   x[1] = (startx - xGrid[1]) / dx
+   y[1] = (starty - yGrid[1]) / dy
 
    # Create unit vectors from full vector field
    fx, fy = normalize_field(ux, uy, dx, dy)
+
+   @show startx, xGrid[1], x, dx
+   @show starty, yGrid[1], y, dy
 
    nstep = 0
    # Perform tracing using RK4
@@ -217,6 +220,8 @@ See also [`trace2d_euler`](@ref).
 function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
+   @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
+
    if gridtype == "ndgrid"
       fx = fieldx
       fy = fieldy
@@ -255,6 +260,8 @@ Supporting `direction` of {"both","forward","backward"}.
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
+
+   @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
 
    if gridtype == "ndgrid"
       fx = fieldx

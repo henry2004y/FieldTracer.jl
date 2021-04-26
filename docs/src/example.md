@@ -23,7 +23,7 @@ u = copy(gridx)
 v = -copy(gridy)
 startx = 0.1
 starty = 0.9
-trace(u, v, startx, starty, gridx, gridy)
+trace(u, v, startx, starty, x, y)
 ```
 
 ## Unstructured 2D mesh
@@ -59,6 +59,18 @@ We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl
 This ensures consistent sampling of fieldlines across the same points to reduce visual shift effect across multiple frames.
 
 Furthermore, we can select seeds interactively on the figure and plot on-the-fly. See the example [demo\_interactive\_select.jl](https://github.com/henry2004y/FieldTracer.jl/tree/master/src/examples/demo_interactive_select.jl).
+
+## Parallelization
+
+Parallelized tracing can happen at fieldline level, whereas it can be less efficient to do it per line. We recommend providing a bunch of points to the `trace` function and then collecting results:
+```
+linex, liney = zeros(20,10), zeros(20,10)
+Threads.@threads for i = 1:10
+   lx, ly = trace(u, v, startx, starty, x, y, maxstep=20)
+   linex[1:length(lx),i] = lx
+   liney[1:length(ly),i] = ly
+end
+```
 
 ## Arrow
 
