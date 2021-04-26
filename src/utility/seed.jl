@@ -1,43 +1,55 @@
 # Utility functions for field tracing.
 
-using Random
-
 export select_seeds
 
 """
-	 select_seeds(x, y; nSeed=100)
+	 select_seeds(x, y; nsegment=(5, 5))
 
-Generate `nSeed` seeding points randomly in the grid range `x` and `y`.
-If you specify `nSeed`, use the keyword input, otherwise it will be
+Generate uniform seeding points in the grid range `x` and `y` in `nsegment`.
+If you specify `nsegment`, use the keyword input, otherwise it will be
 overloaded by the 3D version seed generation function!
 """
-function select_seeds(x, y; nSeed=100)
-   xmin,xmax = extrema(x)
-   ymin,ymax = extrema(y)
+function select_seeds(x, y; nsegment=(5, 5))
+   xmin, xmax = extrema(x)
+   ymin, ymax = extrema(y)
 
-   xstart = rand(MersenneTwister(0),nSeed)*(xmax-xmin) .+ xmin
-   ystart = rand(MersenneTwister(1),nSeed)*(ymax-ymin) .+ ymin
-   seeds = zeros(eltype(x[1]),2,nSeed)
-   for i in eachindex(xstart)
-      seeds[1,i] = xstart[i]
-      seeds[2,i] = ystart[i]
+   dx = (xmax - xmin) / nsegment[1]
+   dy = (ymax - ymin) / nsegment[2]
+
+   xrange = xmin .+ dx*((1:nsegment[1]) .- 0.5)
+   yrange = ymin .+ dy*((1:nsegment[2]) .- 0.5)
+
+   seeds = zeros(eltype(x[1]), 2, prod(nsegment))
+   for i in 0:prod(nsegment)-1
+      seeds[1,i+1] = xrange[i % nsegment[1] + 1]
+      seeds[2,i+1] = yrange[i ÷ nsegment[2] + 1]
    end
-   return seeds
+   seeds
 end
 
-function select_seeds(x, y, z; nSeed=100)
+"""
+	 select_seeds(x, y, z; nsegment=(5, 5, 5))
+
+Generate uniform seeding points in the grid range `x`, `y` and `z` in `nsegment`.
+"""
+function select_seeds(x, y, z; nsegment=(5, 5, 5))
    xmin, xmax = extrema(x)
    ymin, ymax = extrema(y)
    zmin, zmax = extrema(z)
 
-   xstart = rand(MersenneTwister(0), nSeed) * (xmax - xmin) .+ xmin
-   ystart = rand(MersenneTwister(1), nSeed) * (ymax - ymin) .+ ymin
-   zstart = rand(MersenneTwister(2), nSeed) * (zmax - zmin) .+ zmin
-   seeds = zeros(eltype(x[1]), 3, nSeed)
-   for i in eachindex(xstart)
-      seeds[1,i] = xstart[i]
-      seeds[2,i] = ystart[i]
-      seeds[3,i] = zstart[i]
+   dx = (xmax - xmin) / nsegment[1]
+   dy = (ymax - ymin) / nsegment[2]
+   dz = (zmax - zmin) / nsegment[3]
+
+   xrange = xmin .+ dx*((1:nsegment[1]) .- 0.5)
+   yrange = ymin .+ dy*((1:nsegment[2]) .- 0.5)
+   zrange = zmin .+ dz*((1:nsegment[3]) .- 0.5)
+
+   seeds = zeros(eltype(x[1]), 3, prod(nsegment))
+   for k in 1:nsegment[3], j in 1:nsegment[2], i in 1:nsegment[1]
+      seeds[1,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = xrange[i]
+      seeds[2,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = yrange[j]
+      seeds[3,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = zrange[k]
    end
-   return seeds
+   seeds
 end

@@ -57,8 +57,8 @@ end
 Fast 2D tracing using Euler's method. It takes at most `maxstep` with step size
 `ds` tracing the vector field given by `ux,uy` starting from `(startx,starty)`
 in the Cartesian grid specified by ranges `xGrid` and `yGrid`. Step size is in
-normalized coordinates within the range [0,1].
-Return footprints' coordinates in (`x`,`y`).
+normalized coordinates within the range [0, 1].
+Return footprints' coordinates in (`x`, `y`).
 """
 function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
@@ -136,9 +136,6 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    # Create unit vectors from full vector field
    fx, fy = normalize_field(ux, uy, dx, dy)
-
-   @show startx, xGrid[1], x, dx
-   @show starty, yGrid[1], y, dy
 
    nstep = 0
    # Perform tracing using RK4
