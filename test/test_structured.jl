@@ -49,15 +49,13 @@ function test_trace_asymptote(issingle=false)
    c = xstart * ystart
 
    if issingle
-      if isapprox(x1[end]*y1[end], c, atol=1e-2) &&
-         isapprox(x2[end]*y2[end], c, atol=0.13)
+      if isapprox(x1[end]*y1[end], c, atol=1e-2) && isapprox(x2[end]*y2[end], c, atol=0.13)
          return true
       else
          return false
       end
    else
-      if isapprox(x1[end]*y1[end], c, atol=1e-5) &&
-         isapprox(x2[end]*y2[end], c, atol=0.12)
+      if isapprox(x1[end]*y1[end], c, atol=1e-5) && isapprox(x2[end]*y2[end], c, atol=0.12)
          return true
       else
          return false

@@ -6,9 +6,8 @@ include("../../test/utility/dipole.jl")
 """
     test_trace_asymptote(issingle=false)
 
-Test streamline tracing by plotting vectors and associated streamlines through a
-simple velocity field where Vx=x, Vy=-y. Support for single and double precision
-data.
+Test streamline tracing by plotting vectors and associated streamlines through a simple
+velocity field where Vx=x, Vy=-y. Support for single and double precision data.
 """
 function test_trace_asymptote(issingle=false)
 
@@ -79,8 +78,7 @@ function test_trace_asymptote(issingle=false)
    ax1.set_ylim([0.25, 2.5 ])
 
    ax1.annotate("Euler's method diverges strongly\nalong curves except when"*
-      " taking \nvery small steps.  RK4 is\nfar more accurate "*
-      "for all dS.",
+      " taking \nvery small steps.  RK4 is\nfar more accurate for all dS.",
       xy=(10.5,0.83), xycoords="data", xytext=(9,.3),
       arrowprops=Dict(:fc=>"black",:shrink=>0.05),
       horizontalalignment="center")

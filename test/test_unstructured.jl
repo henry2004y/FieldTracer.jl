@@ -1,5 +1,5 @@
 # Test on the idea of 0th order stream tracing.
-# Assume in each cell the value is constant.
+# Assume the value is constant in each cell.
 
 using FieldTracer, Meshes
 

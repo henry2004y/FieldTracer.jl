@@ -89,7 +89,8 @@ xstart = 1.0:1.0:3.0 # seed starting point x
 ystart = 1.0:1.0:3.0 # seed starting point y
 
 for i in axes(xstart,1)
-   x1, y1 = trace(Bx, By, xstart[i], ystart[i], X, Y; maxstep=3000, ds=0.1, gridType="meshgrid")
+   x1, y1 = trace(Bx, By, xstart[i], ystart[i], X, Y;
+      maxstep=3000, ds=0.1, gridType="meshgrid")
    line = axs[1].plot(x1, y1, "r--")
    add_arrow(line[1])
 end
@@ -110,7 +111,8 @@ xstart = [1.0, 3.0, 1.0] # seed starting point x
 ystart = [0.0, 0.0, 1.0] # seed starting point y
 
 for i in axes(xstart,1)
-   x1, y1 = trace(B[1,:,:], B[2,:,:], xstart[i], ystart[i], X, Y; maxstep=3000, ds=0.1, gridType="ndgrid")
+   x1, y1 = trace(B[1,:,:], B[2,:,:], xstart[i], ystart[i], X, Y;
+      maxstep=3000, ds=0.1, gridType="ndgrid")
    axs[2].plot(x1, y1, "r--")
 end
 axs[2].plot(0, 0, color="k", marker="o", label="x-type null point")

@@ -54,11 +54,10 @@ end
 """
     euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
-Fast 2D tracing using Euler's method. It takes at most `maxstep` with step size
-`ds` tracing the vector field given by `ux,uy` starting from `(startx,starty)`
-in the Cartesian grid specified by ranges `xGrid` and `yGrid`. Step size is in
-normalized coordinates within the range [0, 1].
-Return footprints' coordinates in (`x`, `y`).
+Fast 2D tracing using Euler's method. It takes at most `maxstep` with step size `ds` tracing
+the vector field given by `ux,uy` starting from `(startx,starty)` in the Cartesian grid
+specified by ranges `xGrid` and `yGrid`. Step size is in normalized coordinates within the
+range [0, 1]. Return footprints' coordinates in (`x`, `y`).
 """
 function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
@@ -116,8 +115,8 @@ end
 """
     rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
-Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and
-constant step size `ds`. See also [`euler`](@ref).
+Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and constant step
+size `ds`. See also [`euler`](@ref).
 """
 function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
@@ -208,11 +207,10 @@ end
 	 trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
 		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-Given a 2D vector field, trace a streamline from a given point to the edge of
-the vector field. The field is integrated using Runge Kutta 4. Slower than
-Euler, but more accurate. The higher accuracy allows for larger step sizes `ds`.
-Step size is in normalized coordinates within the range [0,1].
-See also [`trace2d_euler`](@ref).
+Given a 2D vector field, trace a streamline from a given point to the edge of the vector
+field. The field is integrated using Runge Kutta 4. Slower than Euler, but more accurate.
+The higher accuracy allows for larger step sizes `ds`. Step size is in normalized
+coordinates within the range [0,1]. See also [`trace2d_euler`](@ref).
 """
 function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
@@ -248,12 +246,11 @@ end
 	 trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
 		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
-Given a 2D vector field, trace a streamline from a given point to the edge of
-the vector field. The field is integrated using Euler's method, which is faster
-but less accurate than RK4. Only valid for regular grid with coordinates' range
-`gridx` and `gridy`. Step size is in normalized coordinates within the range
-[0,1]. The field can be in both `meshgrid` or `ndgrid` (default) format.
-Supporting `direction` of {"both","forward","backward"}.
+Given a 2D vector field, trace a streamline from a given point to the edge of the vector
+field. The field is integrated using Euler's method, which is faster but less accurate than
+RK4. Only valid for regular grid with coordinates' range `gridx` and `gridy`. Step size is
+in normalized coordinates within the range [0,1]. The field can be in both `meshgrid` or
+`ndgrid` (default) format. Supporting `direction` of {"both","forward","backward"}.
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
@@ -286,8 +283,7 @@ function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
 end
 
 """
-    trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
-       kwargs...)
+    trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid; kwargs...)
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
    kwargs...)

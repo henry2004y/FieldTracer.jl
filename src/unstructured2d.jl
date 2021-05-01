@@ -6,13 +6,11 @@ const Δ = 100000. # distance to the far field point
 const ϵ = 1e-5 # small perturbation
 
 """
-	 trace(mesh::SimpleMesh, vx, vy, xstart, ystart;
-       maxIter=1000, maxLen=1000.)
+	 trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
 
 2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
-function trace(mesh::SimpleMesh, vx, vy, xstart, ystart;
-   maxIter=1000, maxLen=1000.)
+function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
 
    xStream = [fill(xs, maxIter) for xs in xstart]
    yStream = [fill(ys, maxIter) for ys in ystart]
