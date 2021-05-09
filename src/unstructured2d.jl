@@ -24,7 +24,7 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
 
       for it = 1:maxIter
          Pfar = Pnow + Vec2f(vx[cellID]*Δ, vy[cellID]*Δ)
-         nodes = mesh.connec[cellID].list
+         element = getelement(mesh, cellID)
          
          if mesh[cellID] isa Quadrangle
             nEdge = 4
@@ -36,13 +36,13 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
          # Loop over edges
          for i = 1:nEdge
             j = i % nEdge + 1 
-            P = Segment(mesh.points[nodes[i]], mesh.points[nodes[j]]) ∩ ray
+            P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
             if P isa Point
                P⁺ = P + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
                cellIDNew = getCellID(mesh, P⁺)
                break
             elseif P isa Segment
-               P⁺ = mesh.points[nodes[j]] + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
+               P⁺ = element.vertices[j] + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
                cellIDNew = getCellID(mesh, P⁺)
                break
             end
@@ -70,25 +70,21 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
    xStream, yStream
 end
 
-"""
-    getCellID(mesh::SimpleMesh, x, y)
-
-Return cell ID on the unstructured mesh.
-"""
+"Return cell ID on the unstructured mesh."
 function getCellID(mesh::SimpleMesh, point::Point2)
-   for i = 1:length(mesh.connec)
-      nodes = mesh.connec[i].list
-      if mesh[i] isa Triangle
-         if point ∈ Triangle(mesh.points[nodes[1]], mesh.points[nodes[2]],
-            mesh.points[nodes[3]])
-            return i
-         end
-      else # Quadrangle
-         if point ∈ Quadrangle(mesh.points[nodes[1]], mesh.points[nodes[2]],
-            mesh.points[nodes[3]], mesh.points[nodes[4]])
-            return i
-         end
+   for (i, element) in enumerate(elements(mesh))
+      if point ∈ element
+         return i
       end
    end
    return 0 # out of mesh boundary
+end
+
+"Return the `cellID`th element of the mesh."
+function getelement(mesh, cellID)
+   for (i, element) in enumerate(elements(mesh))
+      if i == cellID
+         return element
+      end
+   end
 end

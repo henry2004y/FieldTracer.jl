@@ -1,7 +1,7 @@
 name = "FieldTracer"
 uuid = "05065131-34d1-456a-ba22-faf972bb2934"
 authors = ["Hongyang Zhou <hyzhou@umich.edu>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -10,7 +10,7 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
-Meshes = "0.12"
+Meshes = "0.13"
 PyPlot = "2.9"
 Requires = "1.1"
 julia = "1"
