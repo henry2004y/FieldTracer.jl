@@ -12,6 +12,7 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 Meshes = "0.16"
+MuladdMacro = "0.2"
 PyPlot = "2.9"
 Requires = "1.1"
 julia = "1"
