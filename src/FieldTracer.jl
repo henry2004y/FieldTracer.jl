@@ -2,7 +2,7 @@ module FieldTracer
 
 # Hongyang Zhou, hyzhou@umich.edu
 
-using Meshes, Requires
+using Meshes, Requires, MuladdMacro
 
 export trace
 export Euler, RK4

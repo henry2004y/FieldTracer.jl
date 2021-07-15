@@ -16,7 +16,7 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
    yStream = [fill(ys, maxIter) for ys in ystart]
    nIter = fill(maxIter, length(xStream))
 
-   for iS in 1:length(xStream)
+   @inbounds for iS in 1:length(xStream)
       Pnow = Point(xStream[iS][1], yStream[iS][1])
       P⁺ = Point(0.0f0, 0.0f0)
       cellID = getCellID(mesh, Pnow)
@@ -62,7 +62,7 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
       end
    end
 
-   for i = 1:length(xStream)
+   @inbounds for i = 1:length(xStream)
       xStream[i] = xStream[i][1:nIter[i]]
       yStream[i] = yStream[i][1:nIter[i]]
    end

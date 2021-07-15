@@ -110,18 +110,18 @@ function euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy,
          break
       end
 
-      x[n+1] = x[n] + ds * fx
-      y[n+1] = y[n] + ds * fy
-      z[n+1] = z[n] + ds * fz
+      @muladd x[n+1] = x[n] + ds * fx
+      @muladd y[n+1] = y[n] + ds * fy
+      @muladd z[n+1] = z[n] + ds * fz
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
    @inbounds for i = 1:nstep
-      x[i] = x[i]*dx + xGrid[1]
-      y[i] = y[i]*dy + yGrid[1]
-      z[i] = z[i]*dz + zGrid[1]
+      @muladd x[i] = x[i]*dx + xGrid[1]
+      @muladd y[i] = y[i]*dy + yGrid[1]
+      @muladd z[i] = z[i]*dz + zGrid[1]
    end
    x[1:nstep], y[1:nstep], z[1:nstep]
 end
@@ -218,18 +218,18 @@ function rk4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
       end
 
       # Perform the full step using all substeps
-      x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
-      y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
-      z[n+1] = z[n] + ds/6.0 * (f1z + f2z*2.0 + f3z*2.0 + f4z)
+      @muladd x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
+      @muladd y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
+      @muladd z[n+1] = z[n] + ds/6.0 * (f1z + f2z*2.0 + f3z*2.0 + f4z)
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
    @inbounds for i = 1:nstep
-      x[i] = x[i]*dx + xGrid[1]
-      y[i] = y[i]*dy + yGrid[1]
-      z[i] = z[i]*dz + zGrid[1]
+      @muladd x[i] = x[i]*dx + xGrid[1]
+      @muladd y[i] = y[i]*dy + yGrid[1]
+      @muladd z[i] = z[i]*dz + zGrid[1]
    end
    x[1:nstep], y[1:nstep], z[1:nstep]
 end

@@ -98,16 +98,16 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
          break
       end
 
-      x[n+1] = x[n] + ds * fx
-      y[n+1] = y[n] + ds * fy
+      @muladd x[n+1] = x[n] + ds * fx
+      @muladd y[n+1] = y[n] + ds * fy
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
    @inbounds for i = 1:nstep
-      x[i] = x[i]*dx + xGrid[1]
-      y[i] = y[i]*dy + yGrid[1]
+      @muladd x[i] = x[i]*dx + xGrid[1]
+      @muladd y[i] = y[i]*dy + yGrid[1]
    end
    x[1:nstep], y[1:nstep]
 end
@@ -150,8 +150,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
          nstep = n; break
       end
       # SUBSTEP #2
-      xpos = x[n] + f1x*ds/2.0
-      ypos = y[n] + f1y*ds/2.0
+      @muladd xpos = x[n] + f1x*ds*0.5
+      @muladd ypos = y[n] + f1y*ds*0.5
       ix = floor(Int, xpos)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
@@ -163,8 +163,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
          nstep = n; break
       end
       # SUBSTEP #3
-      xpos = x[n] + f2x*ds/2.0
-      ypos = y[n] + f2y*ds/2.0
+      @muladd xpos = x[n] + f2x*ds*0.5
+      @muladd ypos = y[n] + f2y*ds*0.5
       ix = floor(Int, xpos)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
@@ -176,8 +176,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       end
 
       # SUBSTEP #4
-      xpos = x[n] + f3x*ds
-      ypos = y[n] + f3y*ds
+      @muladd xpos = x[n] + f3x*ds
+      @muladd ypos = y[n] + f3y*ds
       ix = floor(Int, xpos)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
@@ -189,16 +189,16 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       end
 
       # Peform the full step using all substeps
-      x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
-      y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
+      @muladd x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
+      @muladd y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
    @inbounds for i = 1:nstep
-      x[i] = x[i]*dx + xGrid[1]
-      y[i] = y[i]*dy + yGrid[1]
+      @muladd x[i] = x[i]*dx + xGrid[1]
+      @muladd y[i] = y[i]*dy + yGrid[1]
    end
    x[1:nstep], y[1:nstep]
 end
