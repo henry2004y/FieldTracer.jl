@@ -1,7 +1,5 @@
 module FieldTracer
 
-# Hongyang Zhou, hyzhou@umich.edu
-
 using Meshes, Requires, MuladdMacro
 
 export trace
@@ -20,7 +18,8 @@ include("utility/seed.jl")
 """
 	 trace(fieldx, fieldy, startx, starty, gridx, gridy; alg=RK4(), kwargs...)
 
-Stream tracing on structured mesh with field in 2D array and grid in range.
+Stream tracing on structured mesh with field in 2D array and grid in range. The keyword
+arguments are the same as in [`trace2d_euler`](@ref) and [`trace2d_rk4`](@ref).
 """
 
 """
@@ -28,7 +27,7 @@ Stream tracing on structured mesh with field in 2D array and grid in range.
        alg=RK4(), kwargs...)
 
     trace(fieldx, fieldy, fieldz, startx, starty, startz, grid::CartesianGrid;
-		 alg=RK4(), maxstep=20000, ds=0.01, gridType="ndgrid", direction="both")
+		 alg=RK4(), maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
 Stream tracing on structured mesh with field in 3D array and grid in range.
 """
