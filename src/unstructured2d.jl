@@ -10,20 +10,21 @@ const ϵ = 1e-5 # small perturbation
 
 2D stream tracing on unstructured quadrilateral and triangular mesh.
 """
-function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=1000.)
-
+function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
+   xstart::Vector{TX}, ystart::Vector{TX}; maxIter::Int=1000, maxLen::Float64=1000.) where
+   {TV<:AbstractFloat, TX<:AbstractFloat}
    xStream = [fill(xs, maxIter) for xs in xstart]
    yStream = [fill(ys, maxIter) for ys in ystart]
    nIter = fill(maxIter, length(xStream))
 
-   @inbounds for iS in 1:length(xStream)
+   @inbounds for iS in eachindex(xStream)
       Pnow = Point(xStream[iS][1], yStream[iS][1])
-      P⁺ = Point(0.0f0, 0.0f0)
+      P⁺ = Point(zero(TX), zero(TX))
       cellID = getCellID(mesh, Pnow)
       cellIDNew = 0
 
       for it = 1:maxIter
-         Pfar = Pnow + Vec2f(vx[cellID]*Δ, vy[cellID]*Δ)
+         Pfar = Pnow + Vec2(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
          element = getelement(mesh, cellID)
          
          if mesh[cellID] isa Quadrangle
@@ -38,18 +39,18 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
             j = i % nEdge + 1 
             P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
             if P isa Point
-               P⁺ = P + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
+               P⁺ = P + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             elseif P isa Segment
-               P⁺ = element.vertices[j] + Vec2f(vx[cellID]*ϵ, vy[cellID]*ϵ)
+               P⁺ = element.vertices[j] + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             end
          end
 
          Pnow = P⁺
-         
+
          xStream[iS][it+1] = Pnow.coords[1]
          yStream[iS][it+1] = Pnow.coords[2]
          nIter[iS] = it+1
@@ -62,7 +63,7 @@ function trace(mesh::SimpleMesh, vx, vy, xstart, ystart; maxIter=1000, maxLen=10
       end
    end
 
-   @inbounds for i = 1:length(xStream)
+   @inbounds for i = eachindex(xStream)
       xStream[i] = xStream[i][1:nIter[i]]
       yStream[i] = yStream[i][1:nIter[i]]
    end
@@ -81,7 +82,7 @@ function getCellID(mesh::SimpleMesh, point::Point2)
 end
 
 "Return the `cellID`th element of the mesh."
-function getelement(mesh, cellID)
+function getelement(mesh::SimpleMesh, cellID::Int)
    for (i, element) in enumerate(elements(mesh))
       if i == cellID
          return element

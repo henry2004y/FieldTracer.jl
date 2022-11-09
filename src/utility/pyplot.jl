@@ -9,7 +9,6 @@ Add an arrow of `size` to the object `line` from Matplotlib. This requires impor
 and only works for Line2D.
 """
 function add_arrow(line, size=12)
-
    color = line.get_color()
    xdata, ydata = line.get_data()
 

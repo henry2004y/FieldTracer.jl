@@ -30,7 +30,7 @@ end
 function normalize_field(ux, uy, uz, dx, dy, dz)
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
    dxInv, dyInv, dzInv = 1/dx, 1/dy, 1/dz
-   @inbounds for i = 1:length(ux)
+   @inbounds for i = eachindex(ux)
       uInv = 1.0 / hypot(ux[i]*dxInv, uy[i]*dyInv, uz[i]*dzInv)
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv

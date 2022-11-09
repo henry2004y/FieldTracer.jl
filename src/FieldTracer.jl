@@ -32,7 +32,6 @@ arguments are the same as in [`trace2d_euler`](@ref) and [`trace2d_rk4`](@ref).
 Stream tracing on structured mesh with field in 3D array and grid in range.
 """
 function trace(args...; alg::Algorithm=RK4(), kwargs...)
-   
    if length(args) ≤ 6 # 2D
       if alg isa RK4
          trace2d_rk4(args...; kwargs...)
@@ -52,7 +51,7 @@ end
 function __init__()
    @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
       include("utility/pyplot.jl")
-  end
+   end
 end
 
 end

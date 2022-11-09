@@ -66,7 +66,7 @@ fig.canvas.mpl_connect("button_press_event",
 #=
 x = plt.ginput(3)
 @show x
-for i in 1:length(x)
+for i in eachindex(x)
    x1, y1 = trace2d(B[1,:,:], B[2,:,:], x[i][1], x[i][2], X, Y;
       maxstep=3000, ds=0.1, gridType="ndgrid")
    axs.plot(x1, y1, "r--")
