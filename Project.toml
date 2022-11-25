@@ -11,7 +11,7 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
-Meshes = "0.24"
+Meshes = "0.24, 0.26"
 MuladdMacro = "0.2"
 PyPlot = "2.9"
 Requires = "1.1"
