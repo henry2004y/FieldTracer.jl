@@ -6,20 +6,21 @@
 Trilinear interpolation for x1,y1,z1=(0,0,0) and x2,y2,z2=(1,1,1)
 Q's are surrounding points such that Q000 = F[0,0,0], Q100 = F[1,0,0], etc.
 """
-function trilin_reg(x, y, z, Q)
+function trilin_reg(x::T, y::T, z::T, Q::Vector{U}) where {T<:Real, U<:Number}
+   oneT = one(T)
    fout =
-      Q[1]*(1.0-x)*(1.0-y)*(1.0-z) +
-      Q[2]* x *    (1.0-y)*(1.0-z) +
-      Q[3]* y *    (1.0-x)*(1.0-z) +
-      Q[4]* x * y * (1.0-z) +
-      Q[5]*(1.0-x)*(1.0-y)*z +
-      Q[6]* x *    (1.0-y)*z +
-      Q[7]* y *    (1.0-x)*z +
+      Q[1]*(oneT-x)*(oneT-y)*(oneT-z) +
+      Q[2]* x *    (oneT-y)*(oneT-z) +
+      Q[3]* y *    (oneT-x)*(oneT-z) +
+      Q[4]* x * y * (oneT-z) +
+      Q[5]*(oneT-x)*(oneT-y)*z +
+      Q[6]* x *    (oneT-y)*z +
+      Q[7]* y *    (oneT-x)*z +
       Q[8]* x * y * z
 end
 
 # Extension from 2d case
-function DoBreak(iloc, jloc, kloc, iSize, jSize, kSize)
+function DoBreak(iloc::Int, jloc::Int, kloc::Int, iSize::Int, jSize::Int, kSize::Int)
    ibreak = false
    if iloc ≥ iSize-1 || jloc ≥ jSize-1 || kloc ≥ kSize-1; ibreak = true end
    if iloc < 0 || jloc < 0 || kloc < 0; ibreak = true end
@@ -27,11 +28,11 @@ function DoBreak(iloc, jloc, kloc, iSize, jSize, kSize)
 end
 
 "Create unit vectors of field in normalized coordinates."
-function normalize_field(ux, uy, uz, dx, dy, dz)
+function normalize_field(ux::U, uy::U, uz::U, dx::V, dy::V, dz::V) where {U, V<:Real}
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
    dxInv, dyInv, dzInv = 1/dx, 1/dy, 1/dz
    @inbounds for i = eachindex(ux)
-      uInv = 1.0 / hypot(ux[i]*dxInv, uy[i]*dyInv, uz[i]*dzInv)
+      uInv = hypot(ux[i]*dxInv, uy[i]*dyInv, uz[i]*dzInv) |> inv
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
       fz[i] = uz[i] * dzInv * uInv
@@ -45,7 +46,8 @@ end
 Interpolate a value at (x,y,z) in a field. `ix`,`iy` and `iz` are indexes for x, y and z
 locations (0-based). `xsize` and `ysize` are the sizes of field in X and Y.
 """
-grid_interp(x, y, z, field, ix, iy, iz) =
+grid_interp(x::T, y::T, z::T, field::AbstractArray{U,3}, ix::Int, iy::Int, iz::Int) where
+   {T<:Real, U<:Number} =
    trilin_reg(x-ix, y-iy, z-iz,
    [
    field[ix+1, iy+1, iz+1],
@@ -66,8 +68,8 @@ the vector field given by `ux,uy,uz` starting from  `(startx,starty,startz)` in 
 Cartesian grid specified by ranges `xGrid`, `yGrid` and `zGrid`.
 Return footprints' coordinates in (`x`,`y`,`z`).
 """
-function euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
-
+function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid, zGrid,
+   ux, uy, uz) where T<:AbstractFloat
    @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
 
    x = Vector{eltype(startx)}(undef, maxstep)
@@ -133,8 +135,8 @@ end
 Fast and reasonably accurate 3D tracing with 4th order Runge-Kutta method and constant step
 size `ds`. See also [`euler`](@ref).
 """
-function rk4(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
-   ux, uy, uz)
+function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid, zGrid,
+   ux, uy, uz) where T<:AbstractFloat
 
    @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
 
@@ -244,8 +246,9 @@ coordinates `gridx`, `gridy`, `gridz`.
 The field can be in both `meshgrid` or `ndgrid` (default) format.
 Supporting `direction` of {"both","forward","backward"}.
 """
-function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
-   maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
+function trace3d_euler(fieldx, fieldy, fieldz, startx::T, starty::T, startz::T,
+   gridx, gridy, gridz; maxstep::Int=20000, ds::T=0.01, gridtype::String="ndgrid",
+   direction::String="both") where T<:AbstractFloat
 
    if gridtype == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
@@ -283,8 +286,9 @@ coordinates `gridx`, `gridy`, `gridz`.
 The field can be in both `meshgrid` or `ndgrid` (default) format.
 See also [`trace3d_euler`](@ref).
 """
-function trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
-   maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
+function trace3d_rk4(fieldx, fieldy, fieldz, startx::T, starty::T, startz::T,
+   gridx, gridy, gridz; maxstep::Int=20000, ds::T=0.01, gridtype::String="ndgrid",
+   direction::String="both") where T<:AbstractFloat
 
    if gridtype == "ndgrid"
       fx, fy, fz = fieldx, fieldy, fieldz
@@ -317,8 +321,8 @@ end
 
 See also [`trace3d_rk4`](@ref).
 """
-function trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, grid::CartesianGrid;
-   kwargs...)
+function trace3d_euler(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
+   grid::CartesianGrid; kwargs...) where {F, T}
 
    gridmin = coordinates(minimum(grid))
    gridmax = coordinates(maximum(grid))
