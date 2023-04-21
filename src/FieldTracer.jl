@@ -38,7 +38,7 @@ function trace(args...; alg::Algorithm=RK4(), kwargs...)
       elseif alg isa Euler
          trace2d_euler(args...; kwargs...)
       end
-   else # 3D 
+   else # 3D
       if alg isa RK4
          trace3d_rk4(args...; kwargs...)
       elseif alg isa Euler
@@ -46,12 +46,6 @@ function trace(args...; alg::Algorithm=RK4(), kwargs...)
       end
    end
 
-end
-
-function __init__()
-   @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
-      include("utility/pyplot.jl")
-   end
 end
 
 end
