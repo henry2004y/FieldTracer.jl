@@ -10,7 +10,7 @@ using PyPlot
 
 "Return x-type magnetic field from 2D potential using auto-differentiation."
 function x_type_autodiff(X, Y, B₀, Bg, dx, dy)
-   
+
    Az(x, y) = B₀/2*(x^2/dx^2 - y^2/dy^2)
    ∇Az(x, y, z) = ForwardDiff.gradient(p -> Az(p[1], p[2]), SVector(x,y,z))
    ẑ = SVector(0.0, 0.0, 1.0)
@@ -20,6 +20,29 @@ function x_type_autodiff(X, Y, B₀, Bg, dx, dy)
       B[3,i,j] += Bg
    end
    B
+end
+
+"""
+    add_arrow(line, size=12)
+
+Add an arrow of `size` to the object `line` from Matplotlib. This requires importing PyPlot,
+and only works for Line2D.
+"""
+function add_arrow(line, size=12)
+   color = line.get_color()
+   xdata, ydata = line.get_data()
+
+   for i = 1:2
+      start_ind = length(xdata) ÷ 3 * i
+      end_ind = start_ind + 1
+      line.axes.annotate("",
+         xytext=(xdata[start_ind], ydata[start_ind]),
+         xy=(xdata[end_ind], ydata[end_ind]),
+         arrowprops=Dict("arrowstyle"=>"-|>", "color"=>color),
+         size=size
+      )
+   end
+
 end
 
 function onclick(event, axs, Bx, By, X, Y)

@@ -1,4 +1,4 @@
-using FieldTracer, PyPlot
+using FieldTracer
 using Documenter
 
 makedocs(;
