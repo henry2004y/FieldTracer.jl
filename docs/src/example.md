@@ -50,7 +50,7 @@ grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
    (Δx, Δy, Δz))
 
 # default direction is both
-x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=200)
+x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=200)
 ```
 
 ## Seeding
