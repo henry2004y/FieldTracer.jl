@@ -335,3 +335,24 @@ function trace3d_euler(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, st
    trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
       kwargs...)
 end
+
+"""
+    trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, grid::CartesianGrid;
+		 maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
+
+See also [`trace3d_euler`](@ref).
+"""
+function trace3d_rk4(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
+   grid::CartesianGrid; kwargs...) where {F, T}
+
+   gridmin = coordinates(minimum(grid))
+   gridmax = coordinates(maximum(grid))
+   Δx = spacing(grid)
+
+   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
+   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
+   gridz = range(gridmin[3], gridmax[3], step=Δx[3])
+
+   trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
+      kwargs...)
+end
