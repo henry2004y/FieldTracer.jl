@@ -12,7 +12,7 @@ More examples can be found in the [examples](https://github.com/henry2004y/Field
 
 ## Structured 2D mesh
 
-```
+```julia
 using FieldTracer
 x = range(0, 1, step=0.1)
 y = range(0, 1, step=0.1)
@@ -33,7 +33,8 @@ See the example in [test_unstructured.jl](https://github.com/henry2004y/FieldTra
 ## Structured 3D mesh
 
 Tracing on a structured 3D mesh is a natural extension from 2D.
-```
+
+```julia
 using FieldTracer, Meshes
 x = range(0, 10, length=15)
 y = range(0, 10, length=20)
@@ -63,7 +64,8 @@ Furthermore, we can select seeds interactively on the figure and plot on-the-fly
 ## Parallelization
 
 Parallelized tracing can happen at fieldline level, whereas it can be less efficient to do it per line. We recommend providing a bunch of points to the `trace` function and then collecting results:
-```
+
+```julia
 linex, liney = zeros(20,10), zeros(20,10)
 Threads.@threads for i = 1:10
    lx, ly = trace(u, v, startx, starty, x, y, maxstep=20)
@@ -82,24 +84,24 @@ Currently we provide a function [add_arrow](https://henry2004y.github.io/FieldTr
 ## Gallery
 
 * Tracing in an analytic asymptotic field
-![](../figures/trace_asymptote.png)
+![](figures/trace_asymptote.png)
 
 * Tracing in a analytic 3D dipole field
-![](../figures/trace_dipole.png)
+![](figures/trace_dipole.png)
 
 * Tracing in a numerical 2D magnetic field
-![](../figures/BxBz_y0cut.png)
+![](figures/BxBz_y0cut.png)
 
 * Tracing in a 2D equatorial plane Earth magnetosphere simulation
-![](../figures/trace_streamline_2Dmagnetosphere.png)
+![](figures/trace_streamline_2Dmagnetosphere.png)
 
 * Streamline tracing in a 2D triangular mesh around an airfoil
-![](../figures/trace_streamline_2Dunstructured.png)
+![](figures/trace_streamline_2Dunstructured.png)
 
 An example is shown for the 2D streamline tracing in the unstructured triangular mesh for the famous airfoil problem. The blue lines are the analytic stream functions derived from incompressible Euler equations which are calculated numerically. Three colored lines are displayed with dots representing the footprints inside each cell.
 
 * Fieldline tracing near the magnetic null points, compared to the `streamplot` function in Matplotlib
-![](../figures/x_o_point.png)
+![](figures/x_o_point.png)
 
 * Fieldline tracing near Ganymede's upstream magnetopause
-![](../figures/trace_magnetopause_ganymede.png)
+![](figures/trace_magnetopause_ganymede.png)
