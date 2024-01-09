@@ -23,7 +23,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
       cellID = getCellID(mesh, Pnow)
       cellIDNew = 0
 
-      for it = 1:maxIter
+      for it in 1:maxIter
          Pfar = Pnow + Vec2(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
          element = getelement(mesh, cellID)
          
@@ -35,7 +35,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
 
          ray = Segment(Pnow, Pfar)
          # Loop over edges
-         for i = 1:nEdge
+         for i in 1:nEdge
             j = i % nEdge + 1 
             P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
             if P isa Point
@@ -63,7 +63,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
       end
    end
 
-   @inbounds for i = eachindex(xStream)
+   @inbounds for i in eachindex(xStream)
       xStream[i] = xStream[i][1:nIter[i]]
       yStream[i] = yStream[i][1:nIter[i]]
    end

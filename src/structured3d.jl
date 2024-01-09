@@ -31,7 +31,7 @@ end
 function normalize_field(ux::U, uy::U, uz::U, dx::V, dy::V, dz::V) where {U, V<:Real}
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
    dxInv, dyInv, dzInv = 1/dx, 1/dy, 1/dz
-   @inbounds for i = eachindex(ux)
+   @inbounds for i in eachindex(ux)
       uInv = hypot(ux[i]*dxInv, uy[i]*dyInv, uz[i]*dzInv) |> inv
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
@@ -91,7 +91,7 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
 
    nstep = 0
    # Perform tracing using Euler's method
-   for n = 1:maxstep-1
+   for n in 1:maxstep-1
       # Find surrounding points
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -120,7 +120,7 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i = 1:nstep
+   @inbounds for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
       @muladd z[i] = z[i]*dz + zGrid[1]
@@ -159,7 +159,7 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
 
    nstep = 0
    # Perform tracing using RK4
-   for n = 1:maxstep-1
+   for n in 1:maxstep-1
       # SUBSTEP #1
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -228,7 +228,7 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i = 1:nstep
+   @inbounds for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
       @muladd z[i] = z[i]*dz + zGrid[1]
