@@ -328,9 +328,9 @@ function trace3d_euler(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, st
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)
 
-   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
-   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
-   gridz = range(gridmin[3], gridmax[3], step=Δx[3])
+   gridx = range(gridmin.x.val, gridmax.x.val, step=Δx[1].val)
+   gridy = range(gridmin.y.val, gridmax.y.val, step=Δx[2].val)
+   gridz = range(gridmin.z.val, gridmax.z.val, step=Δx[3].val)
 
    trace3d_euler(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
       kwargs...)
@@ -349,9 +349,9 @@ function trace3d_rk4(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, star
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)
 
-   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
-   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
-   gridz = range(gridmin[3], gridmax[3], step=Δx[3])
+   gridx = range(gridmin.x.val, gridmax.x.val, step=Δx[1].val)
+   gridy = range(gridmin.y.val, gridmax.y.val, step=Δx[2].val)
+   gridz = range(gridmin.z.val, gridmax.z.val, step=Δx[3].val)
 
    trace3d_rk4(fieldx, fieldy, fieldz, startx, starty, startz, gridx, gridy, gridz;
       kwargs...)

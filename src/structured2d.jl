@@ -292,8 +292,8 @@ function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)
 
-   gridx = range(gridmin[1], gridmax[1], step=Δx[1])
-   gridy = range(gridmin[2], gridmax[2], step=Δx[2])
+   gridx = range(gridmin.x.val, gridmax.x.val, step=Δx[1].val)
+   gridy = range(gridmin.y.val, gridmax.y.val, step=Δx[2].val)
 
    trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy; kwargs...)
 end
