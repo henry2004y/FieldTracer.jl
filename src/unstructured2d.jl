@@ -24,7 +24,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
       cellIDNew = 0
 
       for it in 1:maxIter
-         Pfar = Pnow + Vec2(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
+         Pfar = Pnow + Vec(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
          element = getelement(mesh, cellID)
          
          if mesh[cellID] isa Quadrangle
@@ -39,11 +39,11 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
             j = i % nEdge + 1 
             P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
             if P isa Point
-               P⁺ = P + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
+               P⁺ = P + Vec(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             elseif P isa Segment
-               P⁺ = element.vertices[j] + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
+               P⁺ = element.vertices[j] + Vec(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             end
