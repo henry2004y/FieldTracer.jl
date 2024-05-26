@@ -72,7 +72,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
 end
 
 "Return cell ID on the unstructured mesh."
-function getCellID(mesh::SimpleMesh, point::Meshes.Point2)
+function getCellID(mesh::SimpleMesh, point::Point)
    for (i, element) in enumerate(elements(mesh))
       if point ∈ element
          return i
