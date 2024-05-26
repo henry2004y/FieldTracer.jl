@@ -24,7 +24,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
       cellIDNew = 0
 
       for it in 1:maxIter
-         Pfar = Pnow + Vec2(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
+         Pfar = Pnow + Vec(TX(vx[cellID]*Δ), TX(vy[cellID]*Δ))
          element = getelement(mesh, cellID)
          
          if mesh[cellID] isa Quadrangle
@@ -39,11 +39,11 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
             j = i % nEdge + 1 
             P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
             if P isa Point
-               P⁺ = P + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
+               P⁺ = P + Vec(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             elseif P isa Segment
-               P⁺ = element.vertices[j] + Vec2(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
+               P⁺ = element.vertices[j] + Vec(TX(vx[cellID]*ϵ), TX(vy[cellID]*ϵ))
                cellIDNew = getCellID(mesh, P⁺)
                break
             end
@@ -51,8 +51,8 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
 
          Pnow = P⁺
 
-         xStream[iS][it+1] = Pnow.coords[1]
-         yStream[iS][it+1] = Pnow.coords[2]
+         xStream[iS][it+1] = Pnow.coords.x.val
+         yStream[iS][it+1] = Pnow.coords.y.val
          nIter[iS] = it+1
 
          if cellIDNew == 0 # hit the boundary
@@ -72,7 +72,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
 end
 
 "Return cell ID on the unstructured mesh."
-function getCellID(mesh::SimpleMesh, point::Point2)
+function getCellID(mesh::SimpleMesh, point::Point)
    for (i, element) in enumerate(elements(mesh))
       if point ∈ element
          return i

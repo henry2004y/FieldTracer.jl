@@ -18,7 +18,7 @@ function test_trace_unstructured2D()
    coords[:,8] = [3, 3]
    coords[:,9] = [4, 3]
 
-   points = Point2[coords[:,i] for i in 1:size(coords,2)]
+   points = [Point(coords[:,i]...) for i in 1:size(coords,2)]
    tris = connect.([(2,3,9), (5,8,7), (5,2,8), (2,9,8)], Triangle)
    quads = connect.([(1,2,5,4),(4,5,7,6)], Quadrangle)
    mesh = SimpleMesh(points, [tris; quads])
