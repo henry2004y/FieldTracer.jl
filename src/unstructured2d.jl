@@ -51,8 +51,8 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
 
          Pnow = P⁺
 
-         xStream[iS][it+1] = Pnow.coords[1]
-         yStream[iS][it+1] = Pnow.coords[2]
+         xStream[iS][it+1] = Pnow.coords.x.val
+         yStream[iS][it+1] = Pnow.coords.y.val
          nIter[iS] = it+1
 
          if cellIDNew == 0 # hit the boundary
