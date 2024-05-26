@@ -324,8 +324,8 @@ See also [`trace3d_rk4`](@ref).
 function trace3d_euler(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
    grid::CartesianGrid; kwargs...) where {F, T}
 
-   gridmin = coordinates(minimum(grid))
-   gridmax = coordinates(maximum(grid))
+   gridmin = coords(minimum(grid))
+   gridmax = coords(maximum(grid))
    Δx = spacing(grid)
 
    gridx = range(gridmin[1], gridmax[1], step=Δx[1])
@@ -345,8 +345,8 @@ See also [`trace3d_euler`](@ref).
 function trace3d_rk4(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
    grid::CartesianGrid; kwargs...) where {F, T}
 
-   gridmin = coordinates(minimum(grid))
-   gridmax = coordinates(maximum(grid))
+   gridmin = coords(minimum(grid))
+   gridmax = coords(maximum(grid))
    Δx = spacing(grid)
 
    gridx = range(gridmin[1], gridmax[1], step=Δx[1])
