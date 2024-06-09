@@ -1,7 +1,7 @@
 # Benchmark Test for FieldTracer
 
 using BenchmarkTools
-
+using FieldTracer
 
 const SUITE = BenchmarkGroup()
 
