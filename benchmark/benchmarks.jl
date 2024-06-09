@@ -10,7 +10,7 @@ SUITE["trace"]["2D structured"] = BenchmarkGroup()
 SUITE["trace"]["3D structured"] = BenchmarkGroup()
 
 # Euler2 and RK4 functions
-ds, maxstep = 0.1, 150
+ds, maxstep = 0.1, 100
 x = range(0, 1, step=0.1)
 y = range(0, 1, step=0.1)
 # ndgrid
@@ -22,10 +22,12 @@ xstart = 0.1
 ystart = 0.9
 
 SUITE["trace"]["2D structured"]["euler"] =
-   @benchmarkable trace($u, $v, $xstart, $ystart, $x, $y; alg=Euler(), $ds, $maxstep)
+   @benchmarkable trace($u, $v, $xstart, $ystart, $x, $y;
+      alg=Euler(), ds=$ds, maxstep=$maxstep)
 
 SUITE["trace"]["2D structured"]["rk4"] =
-   @benchmarkable trace($u, $v, $xstart, $ystart, $x, $y; alg=RK4(), $ds, $maxstep)
+   @benchmarkable trace($u, $v, $xstart, $ystart, $x, $y;
+      alg=RK4(), ds=$ds, maxstep=$maxstep)
 
 x = range(0, 10, length=15)
 y = range(0, 10, length=20)
@@ -37,6 +39,6 @@ xs, ys, zs = 1.0, 1.0, 1.0
 
 SUITE["trace"]["3D structured"]["euler"] =
    @benchmarkable trace($bx, $by, $bz, $xs, $ys, $zs, $x, $y, $z;
-      alg=Euler(), ds=0.2, $maxstep)
+      alg=Euler(), ds=$ds, maxstep=$maxstep)
 SUITE["trace"]["3D structured"]["rk4"] =
-   @benchmarkable trace($bx, $by, $bz, $xs, $ys, $zs, $x, $y, $z; ds=0.2, $maxstep)
+   @benchmarkable trace($bx, $by, $bz, $xs, $ys, $zs, $x, $y, $z; ds=$ds, maxstep=$maxstep)
