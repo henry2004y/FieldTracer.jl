@@ -59,7 +59,7 @@ using Test
    @testset "3D structured mesh" begin
       # trilinear interpolation function in a normalized box
       x, y, z = 0.1, 0.2, 0.3
-      Q = [3.0, 40.0, 5.0, 60.0, 3.0, 40.0, 5.0, 60.0]
+      Q = (3.0, 40.0, 5.0, 60.0, 3.0, 40.0, 5.0, 60.0)
       out = FieldTracer.trilin_reg(x, y, z, Q)
       @test out ≈ 7.460 atol=1e-5
 

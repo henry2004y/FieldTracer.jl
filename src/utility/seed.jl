@@ -46,10 +46,11 @@ function select_seeds(x, y, z; nsegment=(5, 5, 5))
    zrange = zmin .+ dz*((1:nsegment[3]) .- 0.5)
 
    seeds = zeros(eltype(x[1]), 3, prod(nsegment))
-   for k in 1:nsegment[3], j in 1:nsegment[2], i in 1:nsegment[1]
+   @inbounds for k in 1:nsegment[3], j in 1:nsegment[2], i in 1:nsegment[1]
       seeds[1,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = xrange[i]
       seeds[2,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = yrange[j]
       seeds[3,i+(j-1)*nsegment[2]+(k-1)*nsegment[2]*nsegment[3]] = zrange[k]
    end
+
    seeds
 end

@@ -43,7 +43,7 @@ end
 function normalize_field(ux, uy, dx, dy)
    fx, fy = similar(ux), similar(uy)
    dxInv, dyInv = 1/dx, 1/dy
-   @inbounds for i in eachindex(ux)
+   @inbounds @simd for i in eachindex(ux)
       uInv = 1.0 / hypot(ux[i]*dxInv, uy[i]*dyInv)
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
@@ -60,7 +60,6 @@ specified by ranges `xGrid` and `yGrid`. Step size is in normalized coordinates 
 range [0, 1]. Return footprints' coordinates in (`x`, `y`).
 """
 function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
-
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
    x = Vector{eltype(startx)}(undef, maxstep)
@@ -79,7 +78,7 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    nstep = 0
    # Perform tracing using Euler's method
-   for n in 1:maxstep-1
+   @inbounds for n in 1:maxstep-1
       # Find surrounding points
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -105,10 +104,11 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i in 1:nstep
+   @inbounds @simd for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
    end
+
    x[1:nstep], y[1:nstep]
 end
 
@@ -119,7 +119,6 @@ Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and co
 size `ds`. See also [`euler`](@ref).
 """
 function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
-
    @assert size(ux) == size(uy) "field array sizes must be equal!"
 
    x = Vector{eltype(startx)}(undef, maxstep)
@@ -138,7 +137,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
    nstep = 0
    # Perform tracing using RK4
-   for n in 1:maxstep-1
+   @inbounds for n in 1:maxstep-1
       # SUBSTEP #1
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -189,17 +188,18 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       end
 
       # Peform the full step using all substeps
-      @muladd x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
-      @muladd y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
+      @muladd x[n+1] = x[n] + ds/6 * (f1x + f2x*2 + f3x*2 + f4x)
+      @muladd y[n+1] = y[n] + ds/6 * (f1y + f2y*2 + f3y*2 + f4y)
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i in 1:nstep
+   @inbounds @simd for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
    end
+
    x[1:nstep], y[1:nstep]
 end
 
@@ -214,7 +214,6 @@ coordinates within the range [0,1]. See also [`trace2d_euler`](@ref).
 """
 function trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
-
    @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
 
    if gridtype == "ndgrid"
@@ -254,7 +253,6 @@ in normalized coordinates within the range [0,1]. The field can be in both `mesh
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, gridx, gridy;
    maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
-
    @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
 
    if gridtype == "ndgrid"
@@ -287,7 +285,6 @@ end
 """
 function trace2d_euler(fieldx, fieldy, startx, starty, grid::CartesianGrid;
    kwargs...)
-
    gridmin = coords(minimum(grid))
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)

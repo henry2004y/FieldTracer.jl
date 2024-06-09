@@ -63,7 +63,7 @@ function trace(mesh::SimpleMesh, vx::Vector{TV}, vy::Vector{TV},
       end
    end
 
-   @inbounds for i in eachindex(xStream)
+   @inbounds @simd for i in eachindex(xStream)
       xStream[i] = xStream[i][1:nIter[i]]
       yStream[i] = yStream[i][1:nIter[i]]
    end

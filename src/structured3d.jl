@@ -6,7 +6,7 @@
 Trilinear interpolation for x1,y1,z1=(0,0,0) and x2,y2,z2=(1,1,1)
 Q's are surrounding points such that Q000 = F[0,0,0], Q100 = F[1,0,0], etc.
 """
-function trilin_reg(x::T, y::T, z::T, Q::Vector{U}) where {T<:Real, U<:Number}
+function trilin_reg(x::T, y::T, z::T, Q::NTuple{8, U}) where {T<:Real, U<:Number}
    oneT = one(T)
    fout =
       Q[1]*(oneT-x)*(oneT-y)*(oneT-z) +
@@ -31,7 +31,7 @@ end
 function normalize_field(ux::U, uy::U, uz::U, dx::V, dy::V, dz::V) where {U, V<:Real}
    fx, fy, fz = similar(ux), similar(uy), similar(uz)
    dxInv, dyInv, dzInv = 1/dx, 1/dy, 1/dz
-   @inbounds for i in eachindex(ux)
+   @inbounds @simd for i in eachindex(ux)
       uInv = hypot(ux[i]*dxInv, uy[i]*dyInv, uz[i]*dzInv) |> inv
       fx[i] = ux[i] * dxInv * uInv
       fy[i] = uy[i] * dyInv * uInv
@@ -49,7 +49,7 @@ locations (0-based). `xsize` and `ysize` are the sizes of field in X and Y.
 grid_interp(x::T, y::T, z::T, field::AbstractArray{U,3}, ix::Int, iy::Int, iz::Int) where
    {T<:Real, U<:Number} =
    trilin_reg(x-ix, y-iy, z-iz,
-   [
+   (
    field[ix+1, iy+1, iz+1],
    field[ix+2, iy+1, iz+1],
    field[ix+1, iy+2, iz+1],
@@ -58,7 +58,7 @@ grid_interp(x::T, y::T, z::T, field::AbstractArray{U,3}, ix::Int, iy::Int, iz::I
    field[ix+2, iy+1, iz+2],
    field[ix+1, iy+2, iz+2],
    field[ix+2, iy+2, iz+2]
-   ])
+   ))
 
 """
     euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
@@ -91,7 +91,7 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
 
    nstep = 0
    # Perform tracing using Euler's method
-   for n in 1:maxstep-1
+   @inbounds for n in 1:maxstep-1
       # Find surrounding points
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -120,7 +120,7 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i in 1:nstep
+   @inbounds @simd for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
       @muladd z[i] = z[i]*dz + zGrid[1]
@@ -159,7 +159,7 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
 
    nstep = 0
    # Perform tracing using RK4
-   for n in 1:maxstep-1
+   @inbounds for n in 1:maxstep-1
       # SUBSTEP #1
       ix = floor(Int, x[n])
       iy = floor(Int, y[n])
@@ -220,19 +220,20 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
       end
 
       # Perform the full step using all substeps
-      @muladd x[n+1] = x[n] + ds/6.0 * (f1x + f2x*2.0 + f3x*2.0 + f4x)
-      @muladd y[n+1] = y[n] + ds/6.0 * (f1y + f2y*2.0 + f3y*2.0 + f4y)
-      @muladd z[n+1] = z[n] + ds/6.0 * (f1z + f2z*2.0 + f3z*2.0 + f4z)
+      @muladd x[n+1] = x[n] + ds/6 * (f1x + f2x*2 + f3x*2 + f4x)
+      @muladd y[n+1] = y[n] + ds/6 * (f1y + f2y*2 + f3y*2 + f4y)
+      @muladd z[n+1] = z[n] + ds/6 * (f1z + f2z*2 + f3z*2 + f4z)
 
       nstep = n
    end
 
    # Convert traced points to original coordinate system.
-   @inbounds for i in 1:nstep
+   @inbounds @simd for i in 1:nstep
       @muladd x[i] = x[i]*dx + xGrid[1]
       @muladd y[i] = y[i]*dy + yGrid[1]
       @muladd z[i] = z[i]*dz + zGrid[1]
    end
+
    x[1:nstep], y[1:nstep], z[1:nstep]
 end
 
@@ -323,7 +324,6 @@ See also [`trace3d_rk4`](@ref).
 """
 function trace3d_euler(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
    grid::CartesianGrid; kwargs...) where {F, T}
-
    gridmin = coords(minimum(grid))
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)
@@ -344,7 +344,6 @@ See also [`trace3d_euler`](@ref).
 """
 function trace3d_rk4(fieldx::F, fieldy::F, fieldz::F, startx::T, starty::T, startz::T,
    grid::CartesianGrid; kwargs...) where {F, T}
-
    gridmin = coords(minimum(grid))
    gridmax = coords(maximum(grid))
    Δx = spacing(grid)
