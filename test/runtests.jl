@@ -72,13 +72,13 @@ using Test
       xs, ys, zs = 1.0, 1.0, 1.0
    
       # Euler 2nd order
-      x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, x, y, z;
+      x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, x, y, z;
          alg=Euler(), ds=0.2, maxstep=200)
 
       @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
 
       # RK4 by default
-      x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, x, y, z;
+      x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, x, y, z;
          ds=0.2, maxstep=200, direction="forward")
 
       @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
@@ -98,7 +98,7 @@ using Test
       @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
 
       # RK4 by default
-      x1, y1, z1 = trace(bx, bz, bz, xs, ys, zs, x, y, z;
+      x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, x, y, z;
          ds=0.2, maxstep=200, direction="forward")
    
       @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
