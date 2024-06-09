@@ -1,6 +1,7 @@
 module FieldTracer
 
-using Meshes, Requires, MuladdMacro
+using Meshes, MuladdMacro
+using PrecompileTools: @setup_workload, @compile_workload
 
 export trace
 export Euler, RK4
@@ -47,5 +48,7 @@ function trace(args...; alg::Algorithm=RK4(), kwargs...)
    end
 
 end
+
+include("precompile.jl")
 
 end
