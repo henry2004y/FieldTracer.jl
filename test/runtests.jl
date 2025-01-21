@@ -60,7 +60,7 @@ using Test
       # trilinear interpolation function in a normalized box
       x, y, z = 0.1, 0.2, 0.3
       Q = (3.0, 40.0, 5.0, 60.0, 3.0, 40.0, 5.0, 60.0)
-      out = FieldTracer.trilin_reg(x, y, z, Q)
+      out = FieldTracer.trilin_reg(x, y, z, Q...)
       @test out ≈ 7.460 atol=1e-5
 
       x = range(0, 10, length=15)

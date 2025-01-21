@@ -6,20 +6,20 @@
 Trilinear interpolation for x1,y1,z1=(0,0,0) and x2,y2,z2=(1,1,1)
 Q's are surrounding points such that Q000 = F[0,0,0], Q100 = F[1,0,0], etc.
 """
-function trilin_reg(x::T, y::T, z::T, Q::NTuple{8, U}) where {T<:Real, U<:Number}
+function trilin_reg(x::T, y::T, z::T, Q000, Q100, Q010, Q110, Q001, Q101, Q011, Q111) where {T<:Real}
    oneT = one(T)
    mx = oneT - x
    my = oneT - y
    mz = oneT - z
    fout =
-      Q[1]*mx*my*mz +
-      Q[2]*x*my*mz +
-      Q[3]*y*mx*mz +
-      Q[4]*x*y*mz +
-      Q[5]*mx*my*z +
-      Q[6]*x*my*z +
-      Q[7]*y*mx*z +
-      Q[8]*x*y*z
+      Q000 * mx * my * mz +
+      Q100 * x  * my * mz +
+      Q010 * y  * mx * mz +
+      Q110 * x  * y  * mz +
+      Q001 * mx * my * z +
+      Q101 * x  * my * z +
+      Q011 * y  * mx * z +
+      Q111 * x  * y  * z
 end
 
 # Extension from 2d case
@@ -52,16 +52,15 @@ locations (0-based). `xsize` and `ysize` are the sizes of field in X and Y.
 grid_interp(x::T, y::T, z::T, field::AbstractArray{U,3}, ix::Int, iy::Int, iz::Int) where
    {T<:Real, U<:Number} =
    trilin_reg(x-ix, y-iy, z-iz,
-   (
-   field[ix+1, iy+1, iz+1],
-   field[ix+2, iy+1, iz+1],
-   field[ix+1, iy+2, iz+1],
-   field[ix+2, iy+2, iz+1],
-   field[ix+1, iy+1, iz+2],
-   field[ix+2, iy+1, iz+2],
-   field[ix+1, iy+2, iz+2],
-   field[ix+2, iy+2, iz+2]
-   ))
+      field[ix+1, iy+1, iz+1],
+      field[ix+2, iy+1, iz+1],
+      field[ix+1, iy+2, iz+1],
+      field[ix+2, iy+2, iz+1],
+      field[ix+1, iy+1, iz+2],
+      field[ix+2, iy+1, iz+2],
+      field[ix+1, iy+2, iz+2],
+      field[ix+2, iy+2, iz+2]
+   )
 
 """
     euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
