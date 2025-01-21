@@ -8,15 +8,18 @@ Q's are surrounding points such that Q000 = F[0,0,0], Q100 = F[1,0,0], etc.
 """
 function trilin_reg(x::T, y::T, z::T, Q::NTuple{8, U}) where {T<:Real, U<:Number}
    oneT = one(T)
+   mx = oneT - x
+   my = oneT - y
+   mz = oneT - z
    fout =
-      Q[1]*(oneT-x)*(oneT-y)*(oneT-z) +
-      Q[2]* x *    (oneT-y)*(oneT-z) +
-      Q[3]* y *    (oneT-x)*(oneT-z) +
-      Q[4]* x * y * (oneT-z) +
-      Q[5]*(oneT-x)*(oneT-y)*z +
-      Q[6]* x *    (oneT-y)*z +
-      Q[7]* y *    (oneT-x)*z +
-      Q[8]* x * y * z
+      Q[1]*mx*my*mz +
+      Q[2]*x*my*mz +
+      Q[3]*y*mx*mz +
+      Q[4]*x*y*mz +
+      Q[5]*mx*my*z +
+      Q[6]*x*my*z +
+      Q[7]*y*mx*z +
+      Q[8]*x*y*z
 end
 
 # Extension from 2d case

@@ -7,11 +7,13 @@ Bilinear interpolation for x1,y1=(0,0) and x2,y2=(1,1)
 Q's are surrounding points such that Q00 = F[0,0], Q10 = F[1,0], etc.
 """
 function bilin_reg(x, y, Q00, Q10, Q01, Q11)
+   mx = 1 - x
+   my = 1 - y
    fout =
-      Q00*(1.0-x)*(1.0-y) +
-      Q10* x *    (1.0-y) +
-      Q01* y *    (1.0-x) +
-      Q11* x * y
+      Q00 * mx * my +
+      Q10 * x  * my +
+      Q01 * y  * mx +
+      Q11 * x  * y
 end
 
 """
