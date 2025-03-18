@@ -44,12 +44,12 @@ function normalize_field(ux::U, uy::U, uz::U, dx::V, dy::V, dz::V) where {U, V<:
 end
 
 """
-    grid_interp(x, y, z, field, ix, iy, iz, xsize, ysize)
+    grid_interp(x, y, z, ix, iy, iz, field)
 
 Interpolate a value at (x,y,z) in a field. `ix`,`iy` and `iz` are indexes for x, y and z
-locations (0-based). `xsize` and `ysize` are the sizes of field in X and Y.
+locations (0-based).
 """
-grid_interp(x::T, y::T, z::T, field::AbstractArray{U,3}, ix::Int, iy::Int, iz::Int) where
+grid_interp(x::T, y::T, z::T, ix::Int, iy::Int, iz::Int, field::AbstractArray{U,3}) where
    {T<:Real, U<:Number} =
    trilin_reg(x-ix, y-iy, z-iz,
       field[ix+1, iy+1, iz+1],
@@ -105,9 +105,9 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
       end
 
       # Interpolate unit vectors to current location
-      fx = grid_interp(x[n], y[n], z[n], f1, ix,iy,iz)
-      fy = grid_interp(x[n], y[n], z[n], f2, ix,iy,iz)
-      fz = grid_interp(x[n], y[n], z[n], f3, ix,iy,iz)
+      fx = grid_interp(x[n], y[n], z[n], ix, iy, iz, f1)
+      fy = grid_interp(x[n], y[n], z[n], ix, iy, iz, f2)
+      fz = grid_interp(x[n], y[n], z[n], ix, iy, iz, f3)
 
       if any(isnan,[fx, fy, fz]) || any(isinf, [fx, fy, fz])
          nstep = n
@@ -168,9 +168,9 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
       iz = floor(Int, z[n])
       if DoBreak(ix, iy, iz, iSize, jSize, kSize); nstep = n; break end
 
-      f1x = grid_interp(x[n],y[n],z[n], fx, ix,iy,iz)
-      f1y = grid_interp(x[n],y[n],z[n], fy, ix,iy,iz)
-      f1z = grid_interp(x[n],y[n],z[n], fz, ix,iy,iz)
+      f1x = grid_interp(x[n], y[n], z[n], ix, iy, iz, fx)
+      f1y = grid_interp(x[n], y[n], z[n], ix, iy, iz, fy)
+      f1z = grid_interp(x[n], y[n], z[n], ix, iy, iz, fz)
       if any(isnan,[f1x, f1y, f1z]) || any(isinf, [f1x, f1y, f1z])
          nstep = n; break
       end
@@ -183,9 +183,9 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
       iz = floor(Int, zpos)
       if DoBreak(ix, iy, iz, iSize, jSize, kSize); nstep = n; break end
 
-      f2x = grid_interp(xpos,ypos,zpos, fx, ix,iy,iz)
-      f2y = grid_interp(xpos,ypos,zpos, fy, ix,iy,iz)
-      f2z = grid_interp(xpos,ypos,zpos, fz, ix,iy,iz)
+      f2x = grid_interp(xpos, ypos, zpos, ix, iy, iz, fx)
+      f2y = grid_interp(xpos, ypos, zpos, ix, iy, iz, fy)
+      f2z = grid_interp(xpos, ypos, zpos, ix, iy, iz, fz)
       if any(isnan,[f2x, f2y, f2z]) || any(isinf, [f2x, f2y, f2z])
          nstep = n; break
       end
@@ -198,9 +198,9 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
       iz = floor(Int, zpos)
       if DoBreak(ix, iy, iz, iSize, jSize, kSize); nstep = n; break end
 
-      f3x = grid_interp(xpos,ypos,zpos, fx, ix,iy,iz)
-      f3y = grid_interp(xpos,ypos,zpos, fy, ix,iy,iz)
-      f3z = grid_interp(xpos,ypos,zpos, fz, ix,iy,iz)
+      f3x = grid_interp(xpos, ypos, zpos, ix, iy, iz, fx)
+      f3y = grid_interp(xpos, ypos, zpos, ix, iy, iz, fy)
+      f3z = grid_interp(xpos, ypos, zpos, ix, iy, iz, fz)
       if any(isnan,[f3x, f3y, f3z]) || any(isinf, [f3x, f3y, f3z])
          nstep = n; break
       end
@@ -214,9 +214,9 @@ function rk4(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid,
       iz = floor(Int, zpos)
       if DoBreak(ix, iy, iz, iSize, jSize, kSize); nstep = n; break end
 
-      f4x = grid_interp(xpos,ypos,zpos, fx, ix,iy,iz)
-      f4y = grid_interp(xpos,ypos,zpos, fy, ix,iy,iz)
-      f4z = grid_interp(xpos,ypos,zpos, fz, ix,iy,iz)
+      f4x = grid_interp(xpos, ypos, zpos, ix, iy, iz, fx)
+      f4y = grid_interp(xpos, ypos, zpos, ix, iy, iz, fy)
+      f4z = grid_interp(xpos, ypos, zpos, ix, iy, iz, fz)
       if any(isnan,[f4x, f4y, f4z]) || any(isinf, [f4x, f4y, f4z])
          nstep = n; break
       end

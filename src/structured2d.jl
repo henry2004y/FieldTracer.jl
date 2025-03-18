@@ -22,7 +22,7 @@ end
 Interpolate a value at (x,y) in a field. `ix` and `iy` are indexes for x,y
 locations (0-based).
 """
-grid_interp(x, y, field::Array, ix, iy) =
+grid_interp(x, y, ix, iy, field::Array) =
    bilin_reg(x-ix, y-iy,
    field[ix+1, iy+1],
    field[ix+2, iy+1],
@@ -91,8 +91,8 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       end
 
       # Interpolate unit vectors to current location
-      fx = grid_interp(x[n], y[n], f1, ix, iy)
-      fy = grid_interp(x[n], y[n], f2, ix, iy)
+      fx = grid_interp(x[n], y[n], ix, iy, f1)
+      fy = grid_interp(x[n], y[n], ix, iy, f2)
 
       if isnan(fx) || isnan(fy) || isinf(fx) || isinf(fy)
          nstep = n
@@ -145,8 +145,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       iy = floor(Int, y[n])
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
 
-      f1x = grid_interp(x[n], y[n], fx, ix, iy)
-      f1y = grid_interp(x[n], y[n], fy, ix, iy)
+      f1x = grid_interp(x[n], y[n], ix, iy, fx)
+      f1y = grid_interp(x[n], y[n], ix, iy, fy)
       if isnan(f1x) || isnan(f1y) || isinf(f1x) || isinf(f1y)
          nstep = n; break
       end
@@ -157,8 +157,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
 
-      f2x = grid_interp(xpos, ypos, fx, ix, iy)
-      f2y = grid_interp(xpos, ypos, fy, ix, iy)
+      f2x = grid_interp(xpos, ypos, ix, iy, fx)
+      f2y = grid_interp(xpos, ypos, ix, iy, fy)
 
       if isnan(f2x) || isnan(f2y) || isinf(f2x) || isinf(f2y)
          nstep = n; break
@@ -170,8 +170,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
 
-      f3x = grid_interp(xpos, ypos, fx, ix, iy)
-      f3y = grid_interp(xpos, ypos, fy, ix, iy)
+      f3x = grid_interp(xpos, ypos, ix, iy, fx)
+      f3y = grid_interp(xpos, ypos, ix, iy, fy)
       if isnan(f3x) || isnan(f3y) || isinf(f3x) || isinf(f3y)
          nstep = n; break
       end
@@ -183,8 +183,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
       iy = floor(Int, ypos)
       if DoBreak(ix, iy, iSize, jSize); nstep = n; break end
 
-      f4x = grid_interp(xpos, ypos, fx, ix, iy)
-      f4y = grid_interp(xpos, ypos, fy, ix, iy)
+      f4x = grid_interp(xpos, ypos, ix, iy, fx)
+      f4y = grid_interp(xpos, ypos, ix, iy, fy)
       if isnan(f4x) || isnan(f4y) || isinf(f4x) || isinf(f4y)
          nstep = n; break
       end
