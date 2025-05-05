@@ -37,11 +37,9 @@ Check to see if we should break out of an integration.
 function DoBreak(iloc, jloc, iSize, jSize)
 	ibreak = false
 	if iloc ≥ iSize-1 || jloc ≥ jSize-1
-		;
 		ibreak = true
 	end
 	if iloc < 0 || jloc < 0
-		;
 		ibreak = true
 	end
 	ibreak
@@ -144,7 +142,7 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = f
 
 		# Break if we leave the domain
 		if DoBreak(ix, iy, iSize, jSize)
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -207,8 +205,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 		ix = floor(Int, x[n])
 		iy = floor(Int, y[n])
 		if DoBreak(ix, iy, iSize, jSize)
-			;
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -220,7 +217,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 		end
 
 		if isnan(f1x) || isnan(f1y) || isinf(f1x) || isinf(f1y)
-			nstep = n;
+			nstep = n
 			break
 		end
 		# SUBSTEP #2
@@ -229,8 +226,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 		ix = floor(Int, xpos)
 		iy = floor(Int, ypos)
 		if DoBreak(ix, iy, iSize, jSize)
-			;
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -241,7 +237,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 			f2x, f2y = grid_interp_normalized(xpos, ypos, ix, iy, ux, uy, dx, dy)
 		end
 		if isnan(f2x) || isnan(f2y) || isinf(f2x) || isinf(f2y)
-			nstep = n;
+			nstep = n
 			break
 		end
 		# SUBSTEP #3
@@ -250,8 +246,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 		ix = floor(Int, xpos)
 		iy = floor(Int, ypos)
 		if DoBreak(ix, iy, iSize, jSize)
-			;
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -262,7 +257,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 			f3x, f3y = grid_interp_normalized(xpos, ypos, ix, iy, ux, uy, dx, dy)
 		end
 		if isnan(f3x) || isnan(f3y) || isinf(f3x) || isinf(f3y)
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -272,8 +267,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 		ix = floor(Int, xpos)
 		iy = floor(Int, ypos)
 		if DoBreak(ix, iy, iSize, jSize)
-			;
-			nstep = n;
+			nstep = n
 			break
 		end
 
@@ -284,7 +278,7 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy, precompute = fal
 			f4x, f4y = grid_interp_normalized(xpos, ypos, ix, iy, ux, uy, dx, dy)
 		end
 		if isnan(f4x) || isnan(f4y) || isinf(f4x) || isinf(f4y)
-			nstep = n;
+			nstep = n
 			break
 		end
 

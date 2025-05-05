@@ -65,13 +65,12 @@ grid_interp(
 function DoBreak(iloc::Int, jloc::Int, kloc::Int, iSize::Int, jSize::Int, kSize::Int)
 	ibreak = false
 	if iloc ≥ iSize-1 || jloc ≥ jSize-1 || kloc ≥ kSize-1
-		;
 		ibreak = true
 	end
 	if iloc < 0 || jloc < 0 || kloc < 0
-		;
 		ibreak = true
 	end
+
 	ibreak
 end
 
@@ -210,7 +209,7 @@ function euler(maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGri
 
 		# Break if we leave the domain
 		if DoBreak(ix, iy, iz, iSize, jSize, kSize)
-			nstep = n;
+			nstep = n
 			break
 		end
 
