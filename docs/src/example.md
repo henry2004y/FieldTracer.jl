@@ -46,9 +46,9 @@ xs, ys, zs = 1.0, 1.0, 1.0
 Δx = x[2] - x[1]
 Δy = y[2] - y[1]
 Δz = z[2] - z[1]
-grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
-   (0., 0., 0.),
-   (Δx, Δy, Δz))
+grid = CartesianGrid((0., 0., 0.),
+   (Δx, Δy, Δz),
+   (length(x)-1, length(y)-1, length(z)-1))
 
 # default direction is both
 x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=200)
