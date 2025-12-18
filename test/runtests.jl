@@ -40,7 +40,7 @@ using Test
 		xt, yt = FieldTracer.rk4(maxstep, ds, xstart, ystart, x, y, u, v)
 		@test length(xt) == 140
 
-		grid = CartesianGrid((length(x)-1, length(y)-1), (0.0, 0.0), (0.1, 0.1))
+		grid = CartesianGrid((0.0, 0.0), (1.0, 1.0), (0.1, 0.1))
 		# default direction is both
 		xt, yt = trace(u, v, xstart, ystart, grid; alg = Euler(), maxstep, ds)
 		@test length(xt) == 148
@@ -86,8 +86,8 @@ using Test
 		Δy = y[2] - y[1]
 		Δz = z[2] - z[1]
 
-		grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
-			(0.0, 0.0, 0.0),
+		grid = CartesianGrid((0.0, 0.0, 0.0),
+			(10.0, 10.0, 10.0),
 			(Δx, Δy, Δz))
 
 		# default direction is both
