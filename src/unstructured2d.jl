@@ -17,10 +17,15 @@ function trace(
     yStream = [fill(ys, maxIter) for ys in ystart]
     nIter = fill(maxIter, length(xStream))
 
+    # Build spatial index
+    centroids = [centroid(e) for e in elements(mesh)]
+    k_search = min(length(mesh), 10)
+    searcher = KNearestSearch(centroids, k_search)
+
     @inbounds for iS in eachindex(xStream)
         Pnow = Point(xStream[iS][1], yStream[iS][1])
         P⁺ = Point(zero(TX), zero(TX))
-        cellID = getCellID(mesh, Pnow)
+        cellID = getCellID(mesh, Pnow, searcher)
         cellIDNew = 0
 
         for it in 1:maxIter
@@ -40,11 +45,11 @@ function trace(
                 P = Segment(element.vertices[i], element.vertices[j]) ∩ ray
                 if P isa Point
                     P⁺ = P + Vec(TX(vx[cellID] * ϵ), TX(vy[cellID] * ϵ))
-                    cellIDNew = getCellID(mesh, P⁺)
+                    cellIDNew = getCellID(mesh, P⁺, searcher)
                     break
                 elseif P isa Segment
                     P⁺ = element.vertices[j] + Vec(TX(vx[cellID] * ϵ), TX(vy[cellID] * ϵ))
-                    cellIDNew = getCellID(mesh, P⁺)
+                    cellIDNew = getCellID(mesh, P⁺, searcher)
                     break
                 end
             end
@@ -72,14 +77,17 @@ function trace(
 end
 
 "Return cell ID on the unstructured mesh."
-function getCellID(mesh::SimpleMesh, point::Point)
-    # TODO: This is O(N) and can be very slow for large meshes.
-    # Consider using a spatial index (e.g. NeighborSearch from Meshes.jl)
-    for (i, element) in enumerate(elements(mesh))
-        if point ∈ element
-            return i
+function getCellID(mesh::SimpleMesh, point::Point, searcher)
+    # Find nearest centroids
+    idxs = search(point, searcher)
+
+    # Check validity among candidates
+    for idx in idxs
+        if point ∈ mesh[idx]
+            return idx
         end
     end
+
     return 0 # out of mesh boundary
 end
 
