@@ -84,10 +84,10 @@ Cartesian grid specified by ranges `xGrid`, `yGrid` and `zGrid`. `ds` is the ste
 physical unit.
 Return footprints' coordinates in (`x`,`y`,`z`).
 """
-function euler(
+@muladd function euler(
         maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid, zGrid,
         ux, uy, uz
-    ) where {T <: AbstractFloat}
+    ) where {T}
     @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
 
     x = Vector{eltype(startx)}(undef, maxstep)
@@ -125,7 +125,7 @@ function euler(
         fy = grid_interp(x[n], y[n], z[n], ix, iy, iz, uy)
         fz = grid_interp(x[n], y[n], z[n], ix, iy, iz, uz)
 
-        if any(isnan, [fx, fy, fz]) || any(isinf, [fx, fy, fz])
+        if any(isnan, (fx, fy, fz)) || any(isinf, (fx, fy, fz))
             nstep = n
             break
         end
@@ -137,18 +137,18 @@ function euler(
         end
         v_inv = inv(v_mag)
 
-        @muladd x[n + 1] = x[n] + ds * fx * v_inv * inv_dx
-        @muladd y[n + 1] = y[n] + ds * fy * v_inv * inv_dy
-        @muladd z[n + 1] = z[n] + ds * fz * v_inv * inv_dz
+        x[n + 1] = x[n] + ds * fx * v_inv * inv_dx
+        y[n + 1] = y[n] + ds * fy * v_inv * inv_dy
+        z[n + 1] = z[n] + ds * fz * v_inv * inv_dz
 
         nstep = n
     end
 
     # Convert traced points to original coordinate system.
     @inbounds @simd for i in 1:nstep
-        @muladd x[i] = x[i] * dx + xGrid[1]
-        @muladd y[i] = y[i] * dy + yGrid[1]
-        @muladd z[i] = z[i] * dz + zGrid[1]
+        x[i] = x[i] * dx + xGrid[1]
+        y[i] = y[i] * dy + yGrid[1]
+        z[i] = z[i] * dz + zGrid[1]
     end
 
     return x[1:nstep], y[1:nstep], z[1:nstep]
@@ -161,10 +161,10 @@ end
 Fast and reasonably accurate 3D tracing with 4th order Runge-Kutta method and constant step
 size `ds`. See also [`euler`](@ref). `ds` is the step size in physical unit.
 """
-function rk4(
+@muladd function rk4(
         maxstep::Int, ds::T, startx::T, starty::T, startz::T, xGrid, yGrid, zGrid,
         ux, uy, uz
-    ) where {T <: AbstractFloat}
+    ) where {T}
 
     @assert size(ux) == size(uy) == size(uz) "field array sizes must be equal!"
 
@@ -200,7 +200,7 @@ function rk4(
         f1y = grid_interp(x[n], y[n], z[n], ix, iy, iz, uy)
         f1z = grid_interp(x[n], y[n], z[n], ix, iy, iz, uz)
 
-        if any(isnan, [f1x, f1y, f1z]) || any(isinf, [f1x, f1y, f1z])
+        if any(isnan, (f1x, f1y, f1z)) || any(isinf, (f1x, f1y, f1z))
             nstep = n
             break
         end
@@ -217,9 +217,9 @@ function rk4(
         k1z = f1z * v1_inv * inv_dz
 
         # SUBSTEP #2
-        @muladd xpos = x[n] + k1x * ds * 0.5
-        @muladd ypos = y[n] + k1y * ds * 0.5
-        @muladd zpos = z[n] + k1z * ds * 0.5
+        xpos = x[n] + k1x * ds * 0.5
+        ypos = y[n] + k1y * ds * 0.5
+        zpos = z[n] + k1z * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
@@ -232,7 +232,7 @@ function rk4(
         f2y = grid_interp(xpos, ypos, zpos, ix, iy, iz, uy)
         f2z = grid_interp(xpos, ypos, zpos, ix, iy, iz, uz)
 
-        if any(isnan, [f2x, f2y, f2z]) || any(isinf, [f2x, f2y, f2z])
+        if any(isnan, (f2x, f2y, f2z)) || any(isinf, (f2x, f2y, f2z))
             nstep = n
             break
         end
@@ -249,9 +249,9 @@ function rk4(
         k2z = f2z * v2_inv * inv_dz
 
         # SUBSTEP #3
-        @muladd xpos = x[n] + k2x * ds * 0.5
-        @muladd ypos = y[n] + k2y * ds * 0.5
-        @muladd zpos = z[n] + k2z * ds * 0.5
+        xpos = x[n] + k2x * ds * 0.5
+        ypos = y[n] + k2y * ds * 0.5
+        zpos = z[n] + k2z * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
@@ -264,7 +264,7 @@ function rk4(
         f3y = grid_interp(xpos, ypos, zpos, ix, iy, iz, uy)
         f3z = grid_interp(xpos, ypos, zpos, ix, iy, iz, uz)
 
-        if any(isnan, [f3x, f3y, f3z]) || any(isinf, [f3x, f3y, f3z])
+        if any(isnan, (f3x, f3y, f3z)) || any(isinf, (f3x, f3y, f3z))
             nstep = n
             break
         end
@@ -281,9 +281,9 @@ function rk4(
         k3z = f3z * v3_inv * inv_dz
 
         # SUBSTEP #4
-        @muladd xpos = x[n] + k3x * ds
-        @muladd ypos = y[n] + k3y * ds
-        @muladd zpos = z[n] + k3z * ds
+        xpos = x[n] + k3x * ds
+        ypos = y[n] + k3y * ds
+        zpos = z[n] + k3z * ds
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
@@ -296,7 +296,7 @@ function rk4(
         f4y = grid_interp(xpos, ypos, zpos, ix, iy, iz, uy)
         f4z = grid_interp(xpos, ypos, zpos, ix, iy, iz, uz)
 
-        if any(isnan, [f4x, f4y, f4z]) || any(isinf, [f4x, f4y, f4z])
+        if any(isnan, (f4x, f4y, f4z)) || any(isinf, (f4x, f4y, f4z))
             nstep = n
             break
         end
@@ -313,18 +313,18 @@ function rk4(
         k4z = f4z * v4_inv * inv_dz
 
         # Perform the full step using all substeps
-        @muladd x[n + 1] = x[n] + ds / 6 * (k1x + k2x * 2 + k3x * 2 + k4x)
-        @muladd y[n + 1] = y[n] + ds / 6 * (k1y + k2y * 2 + k3y * 2 + k4y)
-        @muladd z[n + 1] = z[n] + ds / 6 * (k1z + k2z * 2 + k3z * 2 + k4z)
+        x[n + 1] = x[n] + ds / 6 * (k1x + k2x * 2 + k3x * 2 + k4x)
+        y[n + 1] = y[n] + ds / 6 * (k1y + k2y * 2 + k3y * 2 + k4y)
+        z[n + 1] = z[n] + ds / 6 * (k1z + k2z * 2 + k3z * 2 + k4z)
 
         nstep = n
     end
 
     # Convert traced points to original coordinate system.
     @inbounds @simd for i in 1:nstep
-        @muladd x[i] = x[i] * dx + xGrid[1]
-        @muladd y[i] = y[i] * dy + yGrid[1]
-        @muladd z[i] = z[i] * dz + zGrid[1]
+        x[i] = x[i] * dx + xGrid[1]
+        y[i] = y[i] * dy + yGrid[1]
+        z[i] = z[i] * dz + zGrid[1]
     end
 
     return x[1:nstep], y[1:nstep], z[1:nstep]
@@ -344,7 +344,7 @@ function trace3d_euler(
         fieldx, fieldy, fieldz, startx::T, starty::T, startz::T,
         gridx, gridy, gridz; maxstep::Int = 20000, ds::T = 0.01, gridtype::String = "ndgrid",
         direction::String = "both"
-    ) where {T <: AbstractFloat}
+    ) where {T}
 
     if gridtype == "ndgrid"
         fx, fy, fz = fieldx, fieldy, fieldz
@@ -392,7 +392,7 @@ function trace3d_rk4(
         fieldx, fieldy, fieldz, startx::T, starty::T, startz::T,
         gridx, gridy, gridz; maxstep::Int = 20000, ds::T = 0.01, gridtype::String = "ndgrid",
         direction::String = "both"
-    ) where {T <: AbstractFloat}
+    ) where {T}
 
     if gridtype == "ndgrid"
         fx, fy, fz = fieldx, fieldy, fieldz

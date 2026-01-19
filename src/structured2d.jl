@@ -55,7 +55,7 @@ tracing the vector field given by `ux,uy` starting from `(startx,starty)` in the
 grid specified by ranges `xGrid` and `yGrid`. Step size is in physical unit.
 Return footprints' coordinates in (`x`, `y`).
 """
-function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+@muladd function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
     @assert size(ux) == size(uy) "field array sizes must be equal!"
 
     x = Vector{eltype(startx)}(undef, maxstep)
@@ -107,16 +107,16 @@ function euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
         v_inv = inv(v_mag)
 
-        @muladd x[n + 1] = x[n] + ds * fx * v_inv * inv_dx
-        @muladd y[n + 1] = y[n] + ds * fy * v_inv * inv_dy
+        x[n + 1] = x[n] + ds * fx * v_inv * inv_dx
+        y[n + 1] = y[n] + ds * fy * v_inv * inv_dy
 
         nstep = n
     end
 
     # Convert traced points to original coordinate system.
     @inbounds @simd for i in 1:nstep
-        @muladd x[i] = x[i] * dx + xGrid[1]
-        @muladd y[i] = y[i] * dy + yGrid[1]
+        x[i] = x[i] * dx + xGrid[1]
+        y[i] = y[i] * dy + yGrid[1]
     end
 
     return x[1:nstep], y[1:nstep]
@@ -128,7 +128,7 @@ end
 Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and constant step
 size `ds`. See also [`euler`](@ref).
 """
-function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+@muladd function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
     @assert size(ux) == size(uy) "field array sizes must be equal!"
 
     x = Vector{eltype(startx)}(undef, maxstep)
@@ -174,8 +174,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
         k1y = f1y * v1_inv * inv_dy
 
         # SUBSTEP #2
-        @muladd xpos = x[n] + k1x * ds * 0.5
-        @muladd ypos = y[n] + k1y * ds * 0.5
+        xpos = x[n] + k1x * ds * 0.5
+        ypos = y[n] + k1y * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         if DoBreak(ix, iy, iSize, jSize)
@@ -202,8 +202,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
         k2y = f2y * v2_inv * inv_dy
 
         # SUBSTEP #3
-        @muladd xpos = x[n] + k2x * ds * 0.5
-        @muladd ypos = y[n] + k2y * ds * 0.5
+        xpos = x[n] + k2x * ds * 0.5
+        ypos = y[n] + k2y * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         if DoBreak(ix, iy, iSize, jSize)
@@ -230,8 +230,8 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
         k3y = f3y * v3_inv * inv_dy
 
         # SUBSTEP #4
-        @muladd xpos = x[n] + k3x * ds
-        @muladd ypos = y[n] + k3y * ds
+        xpos = x[n] + k3x * ds
+        ypos = y[n] + k3y * ds
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         if DoBreak(ix, iy, iSize, jSize)
@@ -258,16 +258,16 @@ function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
         k4y = f4y * v4_inv * inv_dy
 
         # Peform the full step using all substeps
-        @muladd x[n + 1] = x[n] + ds / 6 * (k1x + k2x * 2 + k3x * 2 + k4x)
-        @muladd y[n + 1] = y[n] + ds / 6 * (k1y + k2y * 2 + k3y * 2 + k4y)
+        x[n + 1] = x[n] + ds / 6 * (k1x + k2x * 2 + k3x * 2 + k4x)
+        y[n + 1] = y[n] + ds / 6 * (k1y + k2y * 2 + k3y * 2 + k4y)
 
         nstep = n
     end
 
     # Convert traced points to original coordinate system.
     @inbounds @simd for i in 1:nstep
-        @muladd x[i] = x[i] * dx + xGrid[1]
-        @muladd y[i] = y[i] * dy + yGrid[1]
+        x[i] = x[i] * dx + xGrid[1]
+        y[i] = y[i] * dy + yGrid[1]
     end
 
     return x[1:nstep], y[1:nstep]
