@@ -1,7 +1,7 @@
 # 2D Field tracing on a regular grid.
 
 """
-	 bilin_reg(x, y, Q00, Q01, Q10, Q11)
+    bilin_reg(x, y, Q00, Q01, Q10, Q11)
 
 Bilinear interpolation for x1,y1=(0,0) and x2,y2=(1,1)
 Q's are surrounding points such that Q00 = F[0,0], Q10 = F[1,0], etc.
@@ -17,7 +17,7 @@ function bilin_reg(x, y, Q00, Q10, Q01, Q11)
 end
 
 """
-	 grid_interp(x, y, field, ix, iy)
+    grid_interp(x, y, field, ix, iy)
 
 Interpolate a value at (x,y) in a field. `ix` and `iy` are indexes for x,y
 locations (0-based).
@@ -32,11 +32,11 @@ grid_interp(x, y, ix, iy, field::Array) =
 )
 
 """
-	 DoBreak(iloc, jloc, iSize, jSize)
+    isoutofdomain(iloc, jloc, iSize, jSize)
 
 Check to see if we should break out of an integration.
 """
-function DoBreak(iloc, jloc, iSize, jSize)
+function isoutofdomain(iloc, jloc, iSize, jSize)
     ibreak = false
     if iloc ≥ iSize - 1 || jloc ≥ jSize - 1
         ibreak = true
@@ -78,7 +78,7 @@ Return footprints' coordinates in (`x`, `y`).
         iy = floor(Int, y[n])
 
         # Break if we leave the domain
-        if DoBreak(ix, iy, iSize, jSize)
+        if isoutofdomain(ix, iy, iSize, jSize)
             nstep = n
             break
         end
@@ -149,7 +149,7 @@ size `ds`. See also [`euler`](@ref).
         # SUBSTEP #1
         ix = floor(Int, x[n])
         iy = floor(Int, y[n])
-        if DoBreak(ix, iy, iSize, jSize)
+        if isoutofdomain(ix, iy, iSize, jSize)
             nstep = n
             break
         end
@@ -178,7 +178,7 @@ size `ds`. See also [`euler`](@ref).
         ypos = y[n] + k1y * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
-        if DoBreak(ix, iy, iSize, jSize)
+        if isoutofdomain(ix, iy, iSize, jSize)
             nstep = n
             break
         end
@@ -206,7 +206,7 @@ size `ds`. See also [`euler`](@ref).
         ypos = y[n] + k2y * ds * 0.5
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
-        if DoBreak(ix, iy, iSize, jSize)
+        if isoutofdomain(ix, iy, iSize, jSize)
             nstep = n
             break
         end
@@ -234,7 +234,7 @@ size `ds`. See also [`euler`](@ref).
         ypos = y[n] + k3y * ds
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
-        if DoBreak(ix, iy, iSize, jSize)
+        if isoutofdomain(ix, iy, iSize, jSize)
             nstep = n
             break
         end

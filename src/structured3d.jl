@@ -1,7 +1,7 @@
 # 3D field tracing on a regular grid.
 
 """
-	 trilin_reg(x, y, z, Q)
+    trilin_reg(x, y, z, Q)
 
 Trilinear interpolation for x1,y1,z1=(0,0,0) and x2,y2,z2=(1,1,1)
 Q's are surrounding points such that Q000 = F[0,0,0], Q100 = F[1,0,0], etc.
@@ -35,7 +35,7 @@ function trilin_reg(
 end
 
 """
-	 grid_interp(x, y, z, ix, iy, iz, field)
+    grid_interp(x, y, z, ix, iy, iz, field)
 
 Interpolate a value at (x,y,z) in a field. `ix`,`iy` and `iz` are indexes for x, y and z
 locations (0-based).
@@ -63,7 +63,7 @@ grid_interp(
 )
 
 # Extension from 2d case
-function DoBreak(iloc::Int, jloc::Int, kloc::Int, iSize::Int, jSize::Int, kSize::Int)
+function isoutofdomain(iloc::Int, jloc::Int, kloc::Int, iSize::Int, jSize::Int, kSize::Int)
     ibreak = false
     if iloc ≥ iSize - 1 || jloc ≥ jSize - 1 || kloc ≥ kSize - 1
         ibreak = true
@@ -115,7 +115,7 @@ Return footprints' coordinates in (`x`,`y`,`z`).
         iz = floor(Int, z[n])
 
         # Break if we leave the domain
-        if DoBreak(ix, iy, iz, iSize, jSize, kSize)
+        if isoutofdomain(ix, iy, iz, iSize, jSize, kSize)
             nstep = n
             break
         end
@@ -191,7 +191,7 @@ size `ds`. See also [`euler`](@ref). `ds` is the step size in physical unit.
         ix = floor(Int, x[n])
         iy = floor(Int, y[n])
         iz = floor(Int, z[n])
-        if DoBreak(ix, iy, iz, iSize, jSize, kSize)
+        if isoutofdomain(ix, iy, iz, iSize, jSize, kSize)
             nstep = n
             break
         end
@@ -223,7 +223,7 @@ size `ds`. See also [`euler`](@ref). `ds` is the step size in physical unit.
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
-        if DoBreak(ix, iy, iz, iSize, jSize, kSize)
+        if isoutofdomain(ix, iy, iz, iSize, jSize, kSize)
             nstep = n
             break
         end
@@ -255,7 +255,7 @@ size `ds`. See also [`euler`](@ref). `ds` is the step size in physical unit.
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
-        if DoBreak(ix, iy, iz, iSize, jSize, kSize)
+        if isoutofdomain(ix, iy, iz, iSize, jSize, kSize)
             nstep = n
             break
         end
@@ -287,7 +287,7 @@ size `ds`. See also [`euler`](@ref). `ds` is the step size in physical unit.
         ix = floor(Int, xpos)
         iy = floor(Int, ypos)
         iz = floor(Int, zpos)
-        if DoBreak(ix, iy, iz, iSize, jSize, kSize)
+        if isoutofdomain(ix, iy, iz, iSize, jSize, kSize)
             nstep = n
             break
         end
