@@ -4,6 +4,7 @@ using Meshes: SimpleMesh, CartesianGrid, Point, Vec, Segment, Quadrangle, Triang
 using Meshes: elements, centroid, coords, spacing, KNearestSearch, search
 using MuladdMacro: @muladd
 using PrecompileTools: @setup_workload, @compile_workload
+using LoopVectorization: @turbo
 
 export trace
 export Euler, RK4

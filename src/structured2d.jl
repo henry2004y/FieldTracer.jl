@@ -6,7 +6,7 @@
 Bilinear interpolation for x1,y1=(0,0) and x2,y2=(1,1)
 Q's are surrounding points such that Q00 = F[0,0], Q10 = F[1,0], etc.
 """
-function bilin_reg(x, y, Q00, Q10, Q01, Q11)
+@inline function bilin_reg(x, y, Q00, Q10, Q01, Q11)
     mx = 1 - x
     my = 1 - y
     return fout =
@@ -22,7 +22,7 @@ end
 Interpolate a value at (x,y) in a field. `ix` and `iy` are indexes for x,y
 locations (0-based).
 """
-grid_interp(x, y, ix, iy, field::Array) =
+@inline grid_interp(x, y, ix, iy, field::Array) =
     bilin_reg(
     x - ix, y - iy,
     field[ix + 1, iy + 1],
@@ -36,7 +36,7 @@ grid_interp(x, y, ix, iy, field::Array) =
 
 Check to see if we should break out of an integration.
 """
-function isoutofdomain(iloc, jloc, iSize, jSize)
+@inline function isoutofdomain(iloc, jloc, iSize, jSize)
     ibreak = false
     if iloc ≥ iSize - 1 || jloc ≥ jSize - 1
         ibreak = true
@@ -120,6 +120,83 @@ Return footprints' coordinates in (`x`, `y`).
     end
 
     return x[1:nstep], y[1:nstep]
+end
+
+"""
+    euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+
+Fast 2D tracing of multiple particles using Euler's method with LoopVectorization.
+Returns matrices `x` and `y` of size `(n_particles, maxstep)`.
+"""
+function euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+    n_particles = length(startx)
+    @assert length(starty) == n_particles "startx and starty must have same length"
+    @assert size(ux) == size(uy) "field array sizes must be equal!"
+
+    x = Matrix{eltype(startx)}(undef, n_particles, maxstep)
+    y = Matrix{eltype(starty)}(undef, n_particles, maxstep)
+
+    iSize, jSize = size(xGrid, 1), size(yGrid, 1)
+
+    # Get starting points in normalized/array coordinates
+    dx = xGrid[2] - xGrid[1]
+    dy = yGrid[2] - yGrid[1]
+    inv_dx, inv_dy = inv(dx), inv(dy)
+
+    x0, y0 = xGrid[1], yGrid[1]
+
+    @turbo warn_check_args = false for i in 1:n_particles
+        x[i, 1] = (startx[i] - x0) * inv_dx
+        y[i, 1] = (starty[i] - y0) * inv_dy
+    end
+
+    # Perform tracing using Euler's method
+    # Time loop is outer, particle loop is inner (vectorized)
+    for n in 1:(maxstep - 1)
+        @turbo warn_check_args = false for i in 1:n_particles
+            # Current normalized position
+            cx = x[i, n]
+            cy = y[i, n]
+
+            ix = floor(Int, cx)
+            iy = floor(Int, cy)
+
+            # Check domain
+            in_domain = (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+
+            # Clamp indices for safe memory access even if out of domain
+            ix_c = max(0, min(ix, iSize - 2))
+            iy_c = max(0, min(iy, jSize - 2))
+
+            # Interpolate
+            fx = grid_interp(cx, cy, ix_c, iy_c, ux)
+            fy = grid_interp(cx, cy, ix_c, iy_c, uy)
+
+            v_mag = hypot(fx, fy)
+
+            # Check for validity
+            valid = in_domain & (v_mag > 0) & !isnan(fx) & !isnan(fy) & !isinf(fx) & !isinf(fy)
+
+            v_inv = ifelse(valid, inv(v_mag), 0.0)
+
+            # Step size in index space
+            dx_step = ifelse(valid, ds * fx * v_inv * inv_dx, 0.0)
+            dy_step = ifelse(valid, ds * fy * v_inv * inv_dy, 0.0)
+
+            x[i, n + 1] = cx + dx_step
+            y[i, n + 1] = cy + dy_step
+        end
+    end
+
+    # Convert traces back to physical coordinates
+    @turbo warn_check_args = false for n in 1:maxstep
+        for i in 1:n_particles
+            x[i, n] = x[i, n] * dx + x0
+            y[i, n] = y[i, n] * dy + y0
+        end
+    end
+
+    return x, y
 end
 
 """
@@ -274,6 +351,126 @@ size `ds`. See also [`euler`](@ref).
 end
 
 """
+    rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+
+Fast 2D tracing of multiple particles using RK4 method with LoopVectorization.
+Returns matrices `x` and `y` of size `(n_particles, maxstep)`.
+"""
+function rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+    n_particles = length(startx)
+    @assert length(starty) == n_particles "startx and starty must have same length"
+    @assert size(ux) == size(uy) "field array sizes must be equal!"
+
+    x = Matrix{eltype(startx)}(undef, n_particles, maxstep)
+    y = Matrix{eltype(starty)}(undef, n_particles, maxstep)
+
+    iSize, jSize = size(xGrid, 1), size(yGrid, 1)
+
+    dx = xGrid[2] - xGrid[1]
+    dy = yGrid[2] - yGrid[1]
+    inv_dx, inv_dy = inv(dx), inv(dy)
+    x0, y0 = xGrid[1], yGrid[1]
+
+    @turbo warn_check_args = false for i in 1:n_particles
+        x[i, 1] = (startx[i] - x0) * inv_dx
+        y[i, 1] = (starty[i] - y0) * inv_dy
+    end
+
+    for n in 1:(maxstep - 1)
+        @turbo warn_check_args = false for i in 1:n_particles
+            cx = x[i, n]
+            cy = y[i, n]
+
+            # --- Substep 1 ---
+            ix = floor(Int, cx)
+            iy = floor(Int, cy)
+            in_domain = (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+            f1x = grid_interp(cx, cy, ix_c, iy_c, ux)
+            f1y = grid_interp(cx, cy, ix_c, iy_c, uy)
+            v1_mag = hypot(f1x, f1y)
+
+            valid = in_domain & (v1_mag > 0) & !isnan(f1x) & !isnan(f1y) & !isinf(f1x) & !isinf(f1y)
+            v1_inv = ifelse(valid, inv(v1_mag), 0.0)
+
+            k1x = ifelse(valid, f1x * v1_inv * inv_dx, 0.0)
+            k1y = ifelse(valid, f1y * v1_inv * inv_dy, 0.0)
+
+            # --- Substep 2 ---
+            px = cx + k1x * ds * 0.5
+            py = cy + k1y * ds * 0.5
+
+            ix = floor(Int, px)
+            iy = floor(Int, py)
+            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+            f2x = grid_interp(px, py, ix_c, iy_c, ux)
+            f2y = grid_interp(px, py, ix_c, iy_c, uy)
+            v2_mag = hypot(f2x, f2y)
+
+            valid = in_domain & (v2_mag > 0) & !isnan(f2x) & !isnan(f2y) & !isinf(f2x) & !isinf(f2y)
+            v2_inv = ifelse(valid, inv(v2_mag), 0.0)
+
+            k2x = ifelse(valid, f2x * v2_inv * inv_dx, 0.0)
+            k2y = ifelse(valid, f2y * v2_inv * inv_dy, 0.0)
+
+            # --- Substep 3 ---
+            px = cx + k2x * ds * 0.5
+            py = cy + k2y * ds * 0.5
+
+            ix = floor(Int, px)
+            iy = floor(Int, py)
+            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+            f3x = grid_interp(px, py, ix_c, iy_c, ux)
+            f3y = grid_interp(px, py, ix_c, iy_c, uy)
+            v3_mag = hypot(f3x, f3y)
+
+            valid = in_domain & (v3_mag > 0) & !isnan(f3x) & !isnan(f3y) & !isinf(f3x) & !isinf(f3y)
+            v3_inv = ifelse(valid, inv(v3_mag), 0.0)
+
+            k3x = ifelse(valid, f3x * v3_inv * inv_dx, 0.0)
+            k3y = ifelse(valid, f3y * v3_inv * inv_dy, 0.0)
+
+            # --- Substep 4 ---
+            px = cx + k3x * ds
+            py = cy + k3y * ds
+
+            ix = floor(Int, px)
+            iy = floor(Int, py)
+            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+            f4x = grid_interp(px, py, ix_c, iy_c, ux)
+            f4y = grid_interp(px, py, ix_c, iy_c, uy)
+            v4_mag = hypot(f4x, f4y)
+
+            valid = in_domain & (v4_mag > 0) & !isnan(f4x) & !isnan(f4y) & !isinf(f4x) & !isinf(f4y)
+            v4_inv = ifelse(valid, inv(v4_mag), 0.0)
+
+            k4x = ifelse(valid, f4x * v4_inv * inv_dx, 0.0)
+            k4y = ifelse(valid, f4y * v4_inv * inv_dy, 0.0)
+
+            # Update
+            x[i, n + 1] = cx + ds / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
+            y[i, n + 1] = cy + ds / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
+        end
+    end
+
+    @turbo warn_check_args = false for n in 1:maxstep
+        for i in 1:n_particles
+            x[i, n] = x[i, n] * dx + x0
+            y[i, n] = y[i, n] * dy + y0
+        end
+    end
+
+    return x, y
+end
+
+"""
     trace2d_rk4(fieldx, fieldy, startx, starty, gridx, gridy;
        maxstep=20000, ds=0.01, gridtype="ndgrid", direction="both")
 
@@ -307,6 +504,46 @@ function trace2d_rk4(
         # concatenate with duplicates removed
         xt = vcat(reverse!(x1), x2[2:end])
         yt = vcat(reverse!(y1), y2[2:end])
+    end
+
+    return xt, yt
+end
+
+function trace2d_rk4(
+        fieldx, fieldy, startx::AbstractVector, starty::AbstractVector, gridx, gridy;
+        maxstep = 20000, ds = 0.01, gridtype = "ndgrid", direction = "both"
+    )
+    @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
+
+    if gridtype == "ndgrid"
+        fx = fieldx
+        fy = fieldy
+    else # meshgrid
+        fx = permutedims(fieldx)
+        fy = permutedims(fieldy)
+    end
+
+    if direction == "forward"
+        xt, yt = rk4_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+    elseif direction == "backward"
+        xt, yt = rk4_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
+    else
+        x1, y1 = rk4_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
+        x2, y2 = rk4_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
+
+        # Combine traces (concatenate along dim 2, reverse x1 first)
+        # Note: batch returns full matrices, so we might have some zero padding if stopped early?
+        # Actually our batch implementation returns full maxstep size.
+        # But for bidirectional, it's tricky since batch tracing typically expects uniform steps.
+        # For simplicity, we just concat.
+
+        # Reverse x1 columns
+        x1_rev = reverse(x1, dims = 2)
+        y1_rev = reverse(y1, dims = 2)
+
+        # Concat, skipping the first point of x2 (which duplicates last of x1 inverted)
+        xt = hcat(x1_rev, x2[:, 2:end])
+        yt = hcat(y1_rev, y2[:, 2:end])
     end
 
     return xt, yt
@@ -347,6 +584,38 @@ function trace2d_euler(
         # concatenate with duplicates removed
         xt = vcat(reverse!(x1), x2[2:end])
         yt = vcat(reverse!(y1), y2[2:end])
+    end
+
+    return xt, yt
+end
+
+function trace2d_euler(
+        fieldx, fieldy, startx::AbstractVector, starty::AbstractVector, gridx, gridy;
+        maxstep = 20000, ds = 0.01, gridtype = "ndgrid", direction = "both"
+    )
+    @assert ndims(gridx) == 1 "Grid must be given in 1D range or vector!"
+
+    if gridtype == "ndgrid"
+        fx = fieldx
+        fy = fieldy
+    else # meshgrid
+        fx = permutedims(fieldx)
+        fy = permutedims(fieldy)
+    end
+
+    if direction == "forward"
+        xt, yt = euler_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+    elseif direction == "backward"
+        xt, yt = euler_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
+    else
+        x1, y1 = euler_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
+        x2, y2 = euler_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
+
+        x1_rev = reverse(x1, dims = 2)
+        y1_rev = reverse(y1, dims = 2)
+
+        xt = hcat(x1_rev, x2[:, 2:end])
+        yt = hcat(y1_rev, y2[:, 2:end])
     end
 
     return xt, yt

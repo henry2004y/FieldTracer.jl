@@ -115,4 +115,5 @@ using Test
         @test test_trace_unstructured2D()
     end
 
+    include("test_batch.jl")
 end
