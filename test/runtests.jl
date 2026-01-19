@@ -50,6 +50,7 @@ using Test
 
         # dipole field
         @test test_trace_dipole()        # dipole tracing in 2D
+        @test test_trace_anisotropy()    # physical tracing check
     end
 
     @testset "3D structured mesh" begin

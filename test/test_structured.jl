@@ -88,3 +88,36 @@ function test_trace_dipole()
         return false
     end
 end
+
+"Test tracing on an anisotropic grid to verify physical stepping."
+function test_trace_anisotropy()
+    # Anisotropic grid
+    x = -200.0:100.0:200.0 # dx = 100
+    y = -2.0:1.0:2.0       # dy = 1
+
+    # Field 1: (1, 0)
+    fx1 = ones(length(y), length(x))
+    fy1 = zeros(length(y), length(x))
+
+    startx, starty = 0.0, 0.0
+    ds = 0.01 # Physical step size
+
+    # Trace X
+    x1, y1 = trace(fx1, fy1, startx, starty, x, y; alg = Euler(), ds = ds, maxstep = 5)
+
+    dx_phys = sqrt((x1[2] - x1[1])^2 + (y1[2] - y1[1])^2)
+
+    # Field 2: (0, 1)
+    fx2 = zeros(length(y), length(x))
+    fy2 = ones(length(y), length(x))
+
+    # Trace Y
+    x2, y2 = trace(fx2, fy2, startx, starty, x, y; alg = Euler(), ds = ds, maxstep = 5)
+
+    dy_phys = sqrt((x2[2] - x2[1])^2 + (y2[2] - y2[1])^2)
+
+    # Check if physical step is approximately ds and isotropic
+    return isapprox(dx_phys, ds, atol = 1.0e-5) &&
+        isapprox(dy_phys, ds, atol = 1.0e-5) &&
+        isapprox(dx_phys, dy_phys, atol = 1.0e-5)
+end
