@@ -70,19 +70,19 @@ using Test
         # Euler 2nd order
         x1, y1, z1 = trace(
             bx, by, bz, xs, ys, zs, x, y, z;
-            alg = Euler(), ds = 0.2, maxstep = 200
+            alg = Euler(), ds = 0.1, maxstep = 200
         )
-        @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
+        @test length(x1) == 175 && x1[end] ≈ y1[end] ≈ z1[end]
 
-        x1, y1, z1 = FieldTracer.euler(200, 0.2, xs, ys, zs, x, y, z, bx, by, bz, true)
-        @test length(x1) == 153 && x1[end] ≈ y1[end] ≈ z1[end]
+        x1, y1, z1 = FieldTracer.euler(200, 0.1, xs, ys, zs, x, y, z, bx, by, bz)
+        @test length(x1) == 157 && x1[end] ≈ y1[end] ≈ z1[end]
 
         # RK4 by default
         x1, y1, z1 = trace(
             bx, by, bz, xs, ys, zs, x, y, z;
-            ds = 0.2, maxstep = 200, direction = "forward"
+            ds = 0.1, maxstep = 200, direction = "forward"
         )
-        @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
+        @test length(x1) == 156 && x1[end] ≈ y1[end] ≈ z1[end]
 
         Δx = x[2] - x[1]
         Δy = y[2] - y[1]
@@ -97,16 +97,16 @@ using Test
         # default direction is both
         x1, y1, z1 = trace(
             bx, bz, bz, xs, ys, zs, grid;
-            alg = Euler(), ds = 0.2, maxstep = 200
+            alg = Euler(), ds = 0.1, maxstep = 200
         )
-        @test length(x1) == 170 && x1[end] ≈ y1[end] ≈ z1[end]
+        @test length(x1) == 175 && x1[end] ≈ y1[end] ≈ z1[end]
 
         # RK4 by default
         x1, y1, z1 = trace(
             bx, by, bz, xs, ys, zs, x, y, z;
-            ds = 0.2, maxstep = 200, direction = "forward"
+            ds = 0.1, maxstep = 200, direction = "forward"
         )
-        @test length(x1) == 152 && x1[end] ≈ y1[end] ≈ z1[end]
+        @test length(x1) == 156 && x1[end] ≈ y1[end] ≈ z1[end]
     end
 
     @testset "2D unstructured mesh" begin
