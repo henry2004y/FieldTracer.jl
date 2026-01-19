@@ -75,20 +75,6 @@ function DoBreak(iloc::Int, jloc::Int, kloc::Int, iSize::Int, jSize::Int, kSize:
     return ibreak
 end
 
-"Create unit vectors of field in normalized coordinates."
-function normalize_field(ux::U, uy::U, uz::U, dx::V, dy::V, dz::V) where {U, V <: Real}
-    @warn "normalize_field is deprecated and will be removed in future versions."
-    fx, fy, fz = similar(ux), similar(uy), similar(uz)
-    dxInv, dyInv, dzInv = 1 / dx, 1 / dy, 1 / dz
-    @inbounds @simd for i in eachindex(ux)
-        uInv = hypot(ux[i] * dxInv, uy[i] * dyInv, uz[i] * dzInv) |> inv
-        fx[i] = ux[i] * dxInv * uInv
-        fy[i] = uy[i] * dyInv * uInv
-        fz[i] = uz[i] * dzInv * uInv
-    end
-    return fx, fy, fz
-end
-
 """
     euler(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
 

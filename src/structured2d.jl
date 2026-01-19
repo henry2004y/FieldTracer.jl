@@ -47,20 +47,6 @@ function DoBreak(iloc, jloc, iSize, jSize)
     return ibreak
 end
 
-"Create unit vectors of field."
-function normalize_field(ux, uy, dx, dy)
-    @warn "normalize_field is deprecated and will be removed in future versions."
-    fx, fy = similar(ux), similar(uy)
-    dxInv, dyInv = 1 / dx, 1 / dy
-    @inbounds @simd for i in eachindex(ux)
-        uInv = hypot(ux[i] * dxInv, uy[i] * dyInv) |> inv
-        fx[i] = ux[i] * dxInv * uInv
-        fy[i] = uy[i] * dyInv * uInv
-    end
-
-    return fx, fy
-end
-
 """
     euler(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
