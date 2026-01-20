@@ -1,6 +1,6 @@
 using FieldTracer
 using Test
-using LoopVectorization
+using Test
 
 @testset "Batched Tracing" begin
     @testset "2D Batch vs Serial (Forward)" begin

@@ -31,20 +31,120 @@ locations (0-based).
     field[ix + 2, iy + 2]
 )
 
-"""
-    isoutofdomain(iloc, jloc, iSize, jSize)
+@inline check_domain(ix, iy, iSize, jSize) =
+    (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
 
-Check to see if we should break out of an integration.
-"""
-@inline function isoutofdomain(iloc, jloc, iSize, jSize)
-    ibreak = false
-    if iloc ≥ iSize - 1 || jloc ≥ jSize - 1
-        ibreak = true
-    end
-    if iloc < 0 || jloc < 0
-        ibreak = true
-    end
-    return ibreak
+@inline check_validity(fx, fy, v_mag) =
+    (v_mag > 0) & !isnan(fx) & !isnan(fy) & !isinf(fx) & !isinf(fy)
+
+@inline Base.@propagate_inbounds function _euler_step(cx, cy, ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
+    ix = floor(Int, cx)
+    iy = floor(Int, cy)
+
+    # Check domain
+    in_domain = check_domain(ix, iy, iSize, jSize)
+
+    # Clamp indices for safe memory access even if out of domain
+    ix_c = max(0, min(ix, iSize - 2))
+    iy_c = max(0, min(iy, jSize - 2))
+
+    # Interpolate
+    fx = grid_interp(cx, cy, ix_c, iy_c, ux)
+    fy = grid_interp(cx, cy, ix_c, iy_c, uy)
+
+    v_mag = hypot(fx, fy)
+
+    # Check for validity
+    valid = in_domain & check_validity(fx, fy, v_mag)
+
+    v_inv = ifelse(valid, inv(v_mag), 0.0)
+
+    # Step size in index space
+    dx = ifelse(valid, ds * fx * v_inv * inv_dx, 0.0)
+    dy = ifelse(valid, ds * fy * v_inv * inv_dy, 0.0)
+
+    return cx + dx, cy + dy, valid
+end
+
+@inline Base.@propagate_inbounds function _rk4_step(cx, cy, ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
+    # --- Substep 1 ---
+    ix = floor(Int, cx)
+    iy = floor(Int, cy)
+    valid = check_domain(ix, iy, iSize, jSize)
+    ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+    f1x = grid_interp(cx, cy, ix_c, iy_c, ux)
+    f1y = grid_interp(cx, cy, ix_c, iy_c, uy)
+    v1_mag = hypot(f1x, f1y)
+
+    valid &= check_validity(f1x, f1y, v1_mag)
+    v1_inv = ifelse(valid, inv(v1_mag), 0.0)
+
+    k1x = ifelse(valid, f1x * v1_inv * inv_dx, 0.0)
+    k1y = ifelse(valid, f1y * v1_inv * inv_dy, 0.0)
+
+    # --- Substep 2 ---
+    px = cx + k1x * ds * 0.5
+    py = cy + k1y * ds * 0.5
+
+    ix = floor(Int, px)
+    iy = floor(Int, py)
+    valid &= check_domain(ix, iy, iSize, jSize)
+    ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+    f2x = grid_interp(px, py, ix_c, iy_c, ux)
+    f2y = grid_interp(px, py, ix_c, iy_c, uy)
+    v2_mag = hypot(f2x, f2y)
+
+    valid &= check_validity(f2x, f2y, v2_mag)
+    v2_inv = ifelse(valid, inv(v2_mag), 0.0)
+
+    k2x = ifelse(valid, f2x * v2_inv * inv_dx, 0.0)
+    k2y = ifelse(valid, f2y * v2_inv * inv_dy, 0.0)
+
+    # --- Substep 3 ---
+    px = cx + k2x * ds * 0.5
+    py = cy + k2y * ds * 0.5
+
+    ix = floor(Int, px)
+    iy = floor(Int, py)
+    valid &= check_domain(ix, iy, iSize, jSize)
+    ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+    f3x = grid_interp(px, py, ix_c, iy_c, ux)
+    f3y = grid_interp(px, py, ix_c, iy_c, uy)
+    v3_mag = hypot(f3x, f3y)
+
+    valid &= check_validity(f3x, f3y, v3_mag)
+    v3_inv = ifelse(valid, inv(v3_mag), 0.0)
+
+    k3x = ifelse(valid, f3x * v3_inv * inv_dx, 0.0)
+    k3y = ifelse(valid, f3y * v3_inv * inv_dy, 0.0)
+
+    # --- Substep 4 ---
+    px = cx + k3x * ds
+    py = cy + k3y * ds
+
+    ix = floor(Int, px)
+    iy = floor(Int, py)
+    valid &= check_domain(ix, iy, iSize, jSize)
+    ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+
+    f4x = grid_interp(px, py, ix_c, iy_c, ux)
+    f4y = grid_interp(px, py, ix_c, iy_c, uy)
+    v4_mag = hypot(f4x, f4y)
+
+    valid &= check_validity(f4x, f4y, v4_mag)
+    v4_inv = ifelse(valid, inv(v4_mag), 0.0)
+
+    k4x = ifelse(valid, f4x * v4_inv * inv_dx, 0.0)
+    k4y = ifelse(valid, f4y * v4_inv * inv_dy, 0.0)
+
+    # Update
+    next_x = cx + ds / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
+    next_y = cy + ds / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
+
+    return next_x, next_y, valid
 end
 
 """
@@ -70,47 +170,62 @@ Return footprints' coordinates in (`x`, `y`).
     x[1] = (startx - xGrid[1]) * inv_dx
     y[1] = (starty - yGrid[1]) * inv_dy
 
-    nstep = 0
+    nstep = 1
     # Perform tracing using Euler's method
-    @inbounds for n in 1:(maxstep - 1)
-        # Find surrounding points
-        ix = floor(Int, x[n])
-        iy = floor(Int, y[n])
+    @inbounds @fastmath for n in 1:(maxstep - 1)
+        next_x, next_y, valid = _euler_step(x[n], y[n], ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
 
-        # Break if we leave the domain
-        if isoutofdomain(ix, iy, iSize, jSize)
-            nstep = n
+        if !valid
             break
         end
 
-        # Interpolate field to current location
-        fx = grid_interp(x[n], y[n], ix, iy, ux)
-        fy = grid_interp(x[n], y[n], ix, iy, uy)
+        x[n + 1] = next_x
+        y[n + 1] = next_y
+        nstep = n + 1
+    end
 
-        if isnan(fx) || isnan(fy) || isinf(fx) || isinf(fy)
-            nstep = n
+    # Convert traced points to original coordinate system.
+    @inbounds @simd for i in 1:nstep
+        x[i] = x[i] * dx + xGrid[1]
+        y[i] = y[i] * dy + yGrid[1]
+    end
+
+    return x[1:nstep], y[1:nstep]
+end
+
+"""
+    rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+
+Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and constant step
+size `ds`. See also [`euler`](@ref).
+"""
+@muladd function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+    @assert size(ux) == size(uy) "field array sizes must be equal!"
+
+    x = Vector{eltype(startx)}(undef, maxstep)
+    y = Vector{eltype(starty)}(undef, maxstep)
+
+    iSize, jSize = size(xGrid, 1), size(yGrid, 1)
+
+    # Get starting points in normalized/array coordinates
+    dx = xGrid[2] - xGrid[1]
+    dy = yGrid[2] - yGrid[1]
+    inv_dx, inv_dy = inv(dx), inv(dy)
+    x[1] = (startx - xGrid[1]) * inv_dx
+    y[1] = (starty - yGrid[1]) * inv_dy
+
+    nstep = 1
+    # Perform tracing using RK4's method
+    @inbounds @fastmath for n in 1:(maxstep - 1)
+        next_x, next_y, valid = _rk4_step(x[n], y[n], ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
+
+        if !valid
             break
         end
 
-        # Update the location
-        # The velocity in the index space is v_i = v_physical / dx
-        # The step size in the index space is ds_i = v_i / |v_physical| * ds
-        # x[n+1] = x[n] + ds_i = x[n] + fx / |v| / dx * ds
-
-        v_mag = hypot(fx, fy)
-
-        # Stop if the field is zero
-        if v_mag == 0
-            nstep = n
-            break
-        end
-
-        v_inv = inv(v_mag)
-
-        x[n + 1] = x[n] + ds * fx * v_inv * inv_dx
-        y[n + 1] = y[n] + ds * fy * v_inv * inv_dy
-
-        nstep = n
+        x[n + 1] = next_x
+        y[n + 1] = next_y
+        nstep = n + 1
     end
 
     # Convert traced points to original coordinate system.
@@ -145,209 +260,47 @@ function euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
     x0, y0 = xGrid[1], yGrid[1]
 
-    @turbo warn_check_args = false for i in 1:n_particles
+    @inbounds @fastmath @simd for i in 1:n_particles
         x[i, 1] = (startx[i] - x0) * inv_dx
         y[i, 1] = (starty[i] - y0) * inv_dy
     end
 
     # Perform tracing using Euler's method
     # Time loop is outer, particle loop is inner (vectorized)
+    nsteps = ones(Int, n_particles)
+
     for n in 1:(maxstep - 1)
-        @turbo warn_check_args = false for i in 1:n_particles
+        active_count = 0
+        @inbounds @fastmath @simd for i in 1:n_particles
             # Current normalized position
             cx = x[i, n]
             cy = y[i, n]
 
-            ix = floor(Int, cx)
-            iy = floor(Int, cy)
+            next_x, next_y, valid = _euler_step(cx, cy, ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
 
-            # Check domain
-            in_domain = (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
+            # Update active count and nsteps
+            # valid is boolean, promotes to 0/1 integer in addition
+            active_count += valid
+            nsteps[i] += valid
 
-            # Clamp indices for safe memory access even if out of domain
-            ix_c = max(0, min(ix, iSize - 2))
-            iy_c = max(0, min(iy, jSize - 2))
+            x[i, n + 1] = next_x
+            y[i, n + 1] = next_y
+        end
 
-            # Interpolate
-            fx = grid_interp(cx, cy, ix_c, iy_c, ux)
-            fy = grid_interp(cx, cy, ix_c, iy_c, uy)
-
-            v_mag = hypot(fx, fy)
-
-            # Check for validity
-            valid = in_domain & (v_mag > 0) & !isnan(fx) & !isnan(fy) & !isinf(fx) & !isinf(fy)
-
-            v_inv = ifelse(valid, inv(v_mag), 0.0)
-
-            # Step size in index space
-            dx_step = ifelse(valid, ds * fx * v_inv * inv_dx, 0.0)
-            dy_step = ifelse(valid, ds * fy * v_inv * inv_dy, 0.0)
-
-            x[i, n + 1] = cx + dx_step
-            y[i, n + 1] = cy + dy_step
+        if active_count == 0
+            break
         end
     end
 
     # Convert traces back to physical coordinates
-    @turbo warn_check_args = false for n in 1:maxstep
+    @inbounds @fastmath @simd for n in 1:maxstep
         for i in 1:n_particles
             x[i, n] = x[i, n] * dx + x0
             y[i, n] = y[i, n] * dy + y0
         end
     end
 
-    return x, y
-end
-
-"""
-    rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
-
-Fast and reasonably accurate 2D tracing with 4th order Runge-Kutta method and constant step
-size `ds`. See also [`euler`](@ref).
-"""
-@muladd function rk4(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
-    @assert size(ux) == size(uy) "field array sizes must be equal!"
-
-    x = Vector{eltype(startx)}(undef, maxstep)
-    y = Vector{eltype(starty)}(undef, maxstep)
-
-    iSize, jSize = size(xGrid, 1), size(yGrid, 1)
-
-    # Get starting points in normalized/array coordinates
-    dx = xGrid[2] - xGrid[1]
-    dy = yGrid[2] - yGrid[1]
-    inv_dx, inv_dy = inv(dx), inv(dy)
-    x[1] = (startx - xGrid[1]) * inv_dx
-    y[1] = (starty - yGrid[1]) * inv_dy
-
-    nstep = 0
-    # Perform tracing using RK4
-    @inbounds for n in 1:(maxstep - 1)
-        # SUBSTEP #1
-        ix = floor(Int, x[n])
-        iy = floor(Int, y[n])
-        if isoutofdomain(ix, iy, iSize, jSize)
-            nstep = n
-            break
-        end
-
-        f1x = grid_interp(x[n], y[n], ix, iy, ux)
-        f1y = grid_interp(x[n], y[n], ix, iy, uy)
-
-        if isnan(f1x) || isnan(f1y) || isinf(f1x) || isinf(f1y)
-            nstep = n
-            break
-        end
-
-        v1_mag = hypot(f1x, f1y)
-        if v1_mag == 0
-            nstep = n
-            break
-        end
-        v1_inv = inv(v1_mag)
-
-        # Convert to index space velocity
-        k1x = f1x * v1_inv * inv_dx
-        k1y = f1y * v1_inv * inv_dy
-
-        # SUBSTEP #2
-        xpos = x[n] + k1x * ds * 0.5
-        ypos = y[n] + k1y * ds * 0.5
-        ix = floor(Int, xpos)
-        iy = floor(Int, ypos)
-        if isoutofdomain(ix, iy, iSize, jSize)
-            nstep = n
-            break
-        end
-
-        f2x = grid_interp(xpos, ypos, ix, iy, ux)
-        f2y = grid_interp(xpos, ypos, ix, iy, uy)
-
-        if isnan(f2x) || isnan(f2y) || isinf(f2x) || isinf(f2y)
-            nstep = n
-            break
-        end
-
-        v2_mag = hypot(f2x, f2y)
-        if v2_mag == 0
-            nstep = n
-            break
-        end
-        v2_inv = inv(v2_mag)
-
-        k2x = f2x * v2_inv * inv_dx
-        k2y = f2y * v2_inv * inv_dy
-
-        # SUBSTEP #3
-        xpos = x[n] + k2x * ds * 0.5
-        ypos = y[n] + k2y * ds * 0.5
-        ix = floor(Int, xpos)
-        iy = floor(Int, ypos)
-        if isoutofdomain(ix, iy, iSize, jSize)
-            nstep = n
-            break
-        end
-
-        f3x = grid_interp(xpos, ypos, ix, iy, ux)
-        f3y = grid_interp(xpos, ypos, ix, iy, uy)
-
-        if isnan(f3x) || isnan(f3y) || isinf(f3x) || isinf(f3y)
-            nstep = n
-            break
-        end
-
-        v3_mag = hypot(f3x, f3y)
-        if v3_mag == 0
-            nstep = n
-            break
-        end
-        v3_inv = inv(v3_mag)
-
-        k3x = f3x * v3_inv * inv_dx
-        k3y = f3y * v3_inv * inv_dy
-
-        # SUBSTEP #4
-        xpos = x[n] + k3x * ds
-        ypos = y[n] + k3y * ds
-        ix = floor(Int, xpos)
-        iy = floor(Int, ypos)
-        if isoutofdomain(ix, iy, iSize, jSize)
-            nstep = n
-            break
-        end
-
-        f4x = grid_interp(xpos, ypos, ix, iy, ux)
-        f4y = grid_interp(xpos, ypos, ix, iy, uy)
-
-        if isnan(f4x) || isnan(f4y) || isinf(f4x) || isinf(f4y)
-            nstep = n
-            break
-        end
-
-        v4_mag = hypot(f4x, f4y)
-        if v4_mag == 0
-            nstep = n
-            break
-        end
-        v4_inv = inv(v4_mag)
-
-        k4x = f4x * v4_inv * inv_dx
-        k4y = f4y * v4_inv * inv_dy
-
-        # Peform the full step using all substeps
-        x[n + 1] = x[n] + ds / 6 * (k1x + k2x * 2 + k3x * 2 + k4x)
-        y[n + 1] = y[n] + ds / 6 * (k1y + k2y * 2 + k3y * 2 + k4y)
-
-        nstep = n
-    end
-
-    # Convert traced points to original coordinate system.
-    @inbounds @simd for i in 1:nstep
-        x[i] = x[i] * dx + xGrid[1]
-        y[i] = y[i] * dy + yGrid[1]
-    end
-
-    return x[1:nstep], y[1:nstep]
+    return x, y, nsteps
 end
 
 """
@@ -371,103 +324,42 @@ function rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
     inv_dx, inv_dy = inv(dx), inv(dy)
     x0, y0 = xGrid[1], yGrid[1]
 
-    @turbo warn_check_args = false for i in 1:n_particles
+    @inbounds @fastmath @simd for i in 1:n_particles
         x[i, 1] = (startx[i] - x0) * inv_dx
         y[i, 1] = (starty[i] - y0) * inv_dy
     end
 
+    nsteps = ones(Int, n_particles)
+
     for n in 1:(maxstep - 1)
-        @turbo warn_check_args = false for i in 1:n_particles
+        active_count = 0
+        @inbounds @fastmath @simd for i in 1:n_particles
             cx = x[i, n]
             cy = y[i, n]
 
-            # --- Substep 1 ---
-            ix = floor(Int, cx)
-            iy = floor(Int, cy)
-            in_domain = (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
-            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
+            next_x, next_y, valid = _rk4_step(cx, cy, ux, uy, ds, inv_dx, inv_dy, iSize, jSize)
 
-            f1x = grid_interp(cx, cy, ix_c, iy_c, ux)
-            f1y = grid_interp(cx, cy, ix_c, iy_c, uy)
-            v1_mag = hypot(f1x, f1y)
+            # Update active count and nsteps
+            active_count += valid
+            nsteps[i] += valid
 
-            valid = in_domain & (v1_mag > 0) & !isnan(f1x) & !isnan(f1y) & !isinf(f1x) & !isinf(f1y)
-            v1_inv = ifelse(valid, inv(v1_mag), 0.0)
+            x[i, n + 1] = next_x
+            y[i, n + 1] = next_y
+        end
 
-            k1x = ifelse(valid, f1x * v1_inv * inv_dx, 0.0)
-            k1y = ifelse(valid, f1y * v1_inv * inv_dy, 0.0)
-
-            # --- Substep 2 ---
-            px = cx + k1x * ds * 0.5
-            py = cy + k1y * ds * 0.5
-
-            ix = floor(Int, px)
-            iy = floor(Int, py)
-            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
-            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
-
-            f2x = grid_interp(px, py, ix_c, iy_c, ux)
-            f2y = grid_interp(px, py, ix_c, iy_c, uy)
-            v2_mag = hypot(f2x, f2y)
-
-            valid = in_domain & (v2_mag > 0) & !isnan(f2x) & !isnan(f2y) & !isinf(f2x) & !isinf(f2y)
-            v2_inv = ifelse(valid, inv(v2_mag), 0.0)
-
-            k2x = ifelse(valid, f2x * v2_inv * inv_dx, 0.0)
-            k2y = ifelse(valid, f2y * v2_inv * inv_dy, 0.0)
-
-            # --- Substep 3 ---
-            px = cx + k2x * ds * 0.5
-            py = cy + k2y * ds * 0.5
-
-            ix = floor(Int, px)
-            iy = floor(Int, py)
-            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
-            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
-
-            f3x = grid_interp(px, py, ix_c, iy_c, ux)
-            f3y = grid_interp(px, py, ix_c, iy_c, uy)
-            v3_mag = hypot(f3x, f3y)
-
-            valid = in_domain & (v3_mag > 0) & !isnan(f3x) & !isnan(f3y) & !isinf(f3x) & !isinf(f3y)
-            v3_inv = ifelse(valid, inv(v3_mag), 0.0)
-
-            k3x = ifelse(valid, f3x * v3_inv * inv_dx, 0.0)
-            k3y = ifelse(valid, f3y * v3_inv * inv_dy, 0.0)
-
-            # --- Substep 4 ---
-            px = cx + k3x * ds
-            py = cy + k3y * ds
-
-            ix = floor(Int, px)
-            iy = floor(Int, py)
-            in_domain = valid & (ix >= 0) & (ix < iSize - 1) & (iy >= 0) & (iy < jSize - 1)
-            ix_c, iy_c = max(0, min(ix, iSize - 2)), max(0, min(iy, jSize - 2))
-
-            f4x = grid_interp(px, py, ix_c, iy_c, ux)
-            f4y = grid_interp(px, py, ix_c, iy_c, uy)
-            v4_mag = hypot(f4x, f4y)
-
-            valid = in_domain & (v4_mag > 0) & !isnan(f4x) & !isnan(f4y) & !isinf(f4x) & !isinf(f4y)
-            v4_inv = ifelse(valid, inv(v4_mag), 0.0)
-
-            k4x = ifelse(valid, f4x * v4_inv * inv_dx, 0.0)
-            k4y = ifelse(valid, f4y * v4_inv * inv_dy, 0.0)
-
-            # Update
-            x[i, n + 1] = cx + ds / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
-            y[i, n + 1] = cy + ds / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
+        if active_count == 0
+            break
         end
     end
 
-    @turbo warn_check_args = false for n in 1:maxstep
+    @inbounds @fastmath @simd for n in 1:maxstep
         for i in 1:n_particles
             x[i, n] = x[i, n] * dx + x0
             y[i, n] = y[i, n] * dy + y0
         end
     end
 
-    return x, y
+    return x, y, nsteps
 end
 
 """
@@ -524,12 +416,13 @@ function trace2d_rk4(
     end
 
     if direction == "forward"
-        xt, yt = rk4_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+        # nsteps is ignored for batch scalar tracing
+        xt, yt, _ = rk4_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
     elseif direction == "backward"
-        xt, yt = rk4_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
+        xt, yt, _ = rk4_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
     else
-        x1, y1 = rk4_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
-        x2, y2 = rk4_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
+        x1, y1, _ = rk4_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
+        x2, y2, _ = rk4_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
 
         # Combine traces (concatenate along dim 2, reverse x1 first)
         # Note: batch returns full matrices, so we might have some zero padding if stopped early?
@@ -574,6 +467,7 @@ function trace2d_euler(
     end
 
     if direction == "forward"
+        # nsteps is ignored, we rely on checking constants or trusting the user knows batch size
         xt, yt = euler(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
     elseif direction == "backward"
         xt, yt = euler(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
@@ -604,12 +498,12 @@ function trace2d_euler(
     end
 
     if direction == "forward"
-        xt, yt = euler_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
+        xt, yt, _ = euler_batch(maxstep, ds, startx, starty, gridx, gridy, fx, fy)
     elseif direction == "backward"
-        xt, yt = euler_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
+        xt, yt, _ = euler_batch(maxstep, -ds, startx, starty, gridx, gridy, fx, fy)
     else
-        x1, y1 = euler_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
-        x2, y2 = euler_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
+        x1, y1, _ = euler_batch(floor(Int, maxstep / 2), -ds, startx, starty, gridx, gridy, fx, fy)
+        x2, y2, _ = euler_batch(maxstep - size(x1, 2) + 1, ds, startx, starty, gridx, gridy, fx, fy)
 
         x1_rev = reverse(x1, dims = 2)
         y1_rev = reverse(y1, dims = 2)
