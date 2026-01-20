@@ -240,10 +240,10 @@ end
 """
     euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
-Fast 2D tracing of multiple particles using Euler's method with LoopVectorization.
+Fast 2D tracing of multiple particles using Euler's method.
 Returns matrices `x` and `y` of size `(n_particles, maxstep)`.
 """
-function euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+@muladd function euler_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
     n_particles = length(startx)
     @assert length(starty) == n_particles "startx and starty must have same length"
     @assert size(ux) == size(uy) "field array sizes must be equal!"
@@ -306,10 +306,10 @@ end
 """
     rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
 
-Fast 2D tracing of multiple particles using RK4 method with LoopVectorization.
+Fast 2D tracing of multiple particles using RK4 method.
 Returns matrices `x` and `y` of size `(n_particles, maxstep)`.
 """
-function rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
+@muladd function rk4_batch(maxstep, ds, startx, starty, xGrid, yGrid, ux, uy)
     n_particles = length(startx)
     @assert length(starty) == n_particles "startx and starty must have same length"
     @assert size(ux) == size(uy) "field array sizes must be equal!"

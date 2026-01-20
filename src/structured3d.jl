@@ -243,10 +243,10 @@ end
 """
     euler_batch(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
 
-Fast 3D tracing of multiple particles using Euler's method with LoopVectorization.
+Fast 3D tracing of multiple particles using Euler's method.
 Returns matrices `x`, `y`, `z` of size `(n_particles, maxstep)`.
 """
-function euler_batch(
+@muladd function euler_batch(
         maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
         ux, uy, uz
     )
@@ -369,10 +369,10 @@ end
 """
     rk4_batch(maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid, ux, uy, uz)
 
-Fast 3D tracing of multiple particles using RK4 method with LoopVectorization.
+Fast 3D tracing of multiple particles using RK4 method.
 Returns matrices `x`, `y`, `z` of size `(n_particles, maxstep)`.
 """
-function rk4_batch(
+@muladd function rk4_batch(
         maxstep, ds, startx, starty, startz, xGrid, yGrid, zGrid,
         ux, uy, uz
     )
