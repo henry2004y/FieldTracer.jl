@@ -1,7 +1,7 @@
 name = "FieldTracer"
 uuid = "05065131-34d1-456a-ba22-faf972bb2934"
 authors = ["Hongyang Zhou <hyzhou@umich.edu>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
