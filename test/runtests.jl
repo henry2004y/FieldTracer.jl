@@ -41,7 +41,7 @@ using Test
         grid = CartesianGrid((0.0, 0.0), (1.0, 1.0), (0.1, 0.1))
         # default direction is both
         xt, yt = trace(u, v, xstart, ystart, grid; alg = Euler(), maxstep, ds)
-        @test length(xt) == 148
+        @test length(xt) == 149
 
         include("test_structured.jl")
         # asymptotic field
@@ -115,4 +115,5 @@ using Test
         @test test_trace_unstructured2D()
     end
 
+    include("test_batch.jl")
 end

@@ -49,6 +49,42 @@ SUITE["trace"]["3D structured"]["euler"] =
 SUITE["trace"]["3D structured"]["rk4"] =
     @benchmarkable trace($bx, $by, $bz, $xs, $ys, $zs, $x, $y, $z; ds = $ds, maxstep = $maxstep)
 
+# Batch Tracing Setup
+nbatch = 1000
+
+# 2D Batch
+startx_batch_2d = rand(nbatch)
+starty_batch_2d = rand(nbatch)
+
+SUITE["trace"]["2D structured"]["batch_euler"] =
+    @benchmarkable trace(
+    $u, $v, $startx_batch_2d, $starty_batch_2d, $x, $y;
+    alg = Euler(), ds = 0.01, maxstep = 100
+)
+
+SUITE["trace"]["2D structured"]["batch_rk4"] =
+    @benchmarkable trace(
+    $u, $v, $startx_batch_2d, $starty_batch_2d, $x, $y;
+    alg = RK4(), ds = 0.01, maxstep = 100
+)
+
+# 3D Batch
+startx_batch_3d = rand(nbatch) .* 10.0
+starty_batch_3d = rand(nbatch) .* 10.0
+startz_batch_3d = rand(nbatch) .* 10.0
+
+SUITE["trace"]["3D structured"]["batch_euler"] =
+    @benchmarkable trace(
+    $bx, $by, $bz, $startx_batch_3d, $starty_batch_3d, $startz_batch_3d, $x, $y, $z;
+    alg = Euler(), ds = 0.01, maxstep = 100
+)
+
+SUITE["trace"]["3D structured"]["batch_rk4"] =
+    @benchmarkable trace(
+    $bx, $by, $bz, $startx_batch_3d, $starty_batch_3d, $startz_batch_3d, $x, $y, $z;
+    alg = RK4(), ds = 0.01, maxstep = 100
+)
+
 SUITE["trace"]["2D unstructured"] = BenchmarkGroup()
 
 # Create a simple mesh for unstructured benchmark
