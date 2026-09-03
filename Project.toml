@@ -1,7 +1,7 @@
 name = "FieldTracer"
 uuid = "05065131-34d1-456a-ba22-faf972bb2934"
 authors = ["Hongyang Zhou <hyzhou@umich.edu>"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
@@ -9,7 +9,7 @@ MuladdMacro = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 
 [compat]
-Meshes = "0.56"
+Meshes = "0.56, 0.57, 0.58"
 MuladdMacro = "0.2"
 PrecompileTools = "1"
 julia = "1.10"
