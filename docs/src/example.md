@@ -54,6 +54,67 @@ grid = CartesianGrid((length(x)-1, length(y)-1, length(z)-1),
 x1, y1, z1 = trace(bx, by, bz, xs, ys, zs, grid; alg=Euler(), ds=0.2, maxstep=200)
 ```
 
+## Analytical quadrupole field
+
+Analytical fields can be traced directly with native RK4: no mesh, interpolation,
+or ODE solver dependency is needed. As a less familiar alternative to a dipole,
+consider an axisymmetric magnetic quadrupole aligned with the z axis. In
+dimensionless units its scalar potential is
+
+```math
+\Phi(x,y,z) = \frac{3z^2-r^2}{2r^5}, \qquad
+\mathbf{B} = -\nabla\Phi, \qquad r^2 = x^2+y^2+z^2.
+```
+
+This is an idealized exterior multipole model, singular at the origin. Unlike a
+dipole, its field magnitude decays as ``r^{-4}``. We exclude a finite source
+region so that no RK stage evaluates the singularity:
+
+```julia
+using FieldTracer
+using LinearAlgebra: norm
+
+function quadrupole(u, s)
+    x, y, z = u
+    r2 = x^2 + y^2 + z^2
+    iszero(r2) && throw(DomainError(u, "The quadrupole is singular at the origin."))
+    scale = 1.5 / r2^(7 / 2)
+    return (
+        scale * x * (5z^2 - r2),
+        scale * y * (5z^2 - r2),
+        scale * z * (5z^2 - 3r2),
+    )
+end
+
+isoutside(u, s) = !(0.5 < norm(u) < 4.0)
+result = trace(quadrupole, [1.5, 0.0, 1.0];
+    ds = 0.01, max_length = 20.0, maxstep = 10000, isoutside)
+
+result.forward.status
+result.backward.status
+```
+
+`result.forward` and `result.backward` each contain `points`, signed arc lengths
+`s`, and a termination `status`. The field is normalized internally, so `ds`
+controls physical distance rather than depending on field strength.
+The domain predicate is checked at all intermediate stages; when a stage leaves
+the shell, tracing returns `:outside` and retains the last accepted point.
+The endpoint is not an exact boundary intersection.
+
+The complete [quadrupole example](https://github.com/henry2004y/FieldTracer.jl/blob/master/examples/demo_analytical_quadrupole.jl)
+traces multiple seeds in the x-z plane and plots the four-lobed geometry using
+PyPlot. Run it in an environment containing FieldTracer and PyPlot:
+
+```julia
+include("examples/demo_analytical_quadrupole.jl")
+result = trace_quadrupole()
+```
+
+Including the file only defines the numerical example; run the file as a script
+to display the plot. PyPlot is only needed for plotting, not tracing.
+Compare traces at `ds = 0.01` and `ds = 0.005` to check spatial convergence,
+especially near the inner boundary.
+
 ## Seeding
 
 We provide a function [select_seeds](https://henry2004y.github.io/FieldTracer.jl/dev/internal/#FieldTracer.select_seeds-Tuple{Any,%20Any}) for generating uniform seeds for the starting points in 2D/3D.

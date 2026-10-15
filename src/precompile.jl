@@ -2,6 +2,9 @@
 
 @setup_workload begin
     @compile_workload begin
+        field(u, s) = (1.0, 0.0)
+        trace(field, [0.0, 0.0]; maxstep = 5)
+
         # 2D Data
         x = range(0, 1, step = 0.1)
         y = range(0, 1, step = 0.1)
