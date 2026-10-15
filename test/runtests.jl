@@ -12,6 +12,28 @@ using Test
         @test seeds[:, 2] == [0.75, 1.25, 2.25]
     end
 
+    @testset "Analytical field-line ODE" begin
+        field(u, s) = [0.0, 0.0, 2.0]
+        u0 = [1.0, 2.0, 3.0]
+        forward = TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :forward)
+        @test forward.tspan == (0.0, 2.0)
+        @test forward.u0 == u0
+        du = zeros(3)
+        forward.f(du, u0, forward.p, 0.0)
+        @test du == [0.0, 0.0, 1.0]
+
+        backward = TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :backward)
+        @test backward.tspan == (0.0, -2.0)
+        both = TraceFieldlineProblem(u0, field, (0.0, 2.0))
+        @test both[1].tspan == (0.0, 2.0)
+        @test both[2].tspan == (0.0, -2.0)
+        @test_throws ArgumentError TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :sideways)
+
+        zero_field(u, s) = zeros(3)
+        trace_fieldline!(du, u0, zero_field, 0.0)
+        @test du == zeros(3)
+    end
+
     @testset "2D structured mesh" begin
         # bilinear interpolation function in a normalized rectangle
         x, y = 0.1, 0.2

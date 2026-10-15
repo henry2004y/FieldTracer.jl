@@ -14,3 +14,16 @@ This package supports 2nd and 4th order field line tracing on
 It can be used for
 * generating streamlines and fieldlines;
 * checking field connectivity between spatial cells.
+
+Analytical field lines can be defined as ODE problems with
+[`TraceFieldlineProblem`](@ref) and integrated using a solver from
+[OrdinaryDiffEq.jl](https://docs.sciml.ai/OrdinaryDiffEq/stable/).
+The field function takes a position and arc length, and returns the field vector:
+
+```julia
+using FieldTracer, OrdinaryDiffEq
+
+B(x, s) = [0, 0, 1]
+prob = TraceFieldlineProblem([0.0, 0.0, 0.0], B, (0.0, 10.0); mode = :forward)
+solution = solve(prob, Tsit5())
+```
