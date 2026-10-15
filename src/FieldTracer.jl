@@ -2,11 +2,14 @@ module FieldTracer
 
 using Meshes: SimpleMesh, CartesianGrid, Point, Vec, Segment, Quadrangle, Triangle
 using Meshes: elements, centroid, coords, spacing, KNearestSearch, search
+using LinearAlgebra: norm
 using MuladdMacro: @muladd
 using PrecompileTools: @setup_workload, @compile_workload
+using SciMLBase: ODEProblem
 
 export trace
 export Euler, RK4
+export trace_fieldline!, TraceFieldlineProblem
 
 abstract type Algorithm end
 
@@ -16,6 +19,7 @@ struct RK4 <: Algorithm end
 include("structured2d.jl")
 include("structured3d.jl")
 include("unstructured2d.jl")
+include("fieldline.jl")
 include("utility/seed.jl")
 
 """
