@@ -1,6 +1,29 @@
 using FieldTracer
 using Test
 using LinearAlgebra: norm
+include(joinpath(@__DIR__, "..", "examples", "demo_analytical_quadrupole.jl"))
+
+@testset "Analytical quadrupole example" begin
+    result = trace_quadrupole()
+    @test length(result.seeds) == length(result.traces) == 24
+    for line in result.traces, branch in (line.forward, line.backward)
+        @test branch.status === :outside
+        @test length(branch.points) > 1
+        @test all(u -> 0.5 < norm(u) < 4.0, branch.points)
+        @test all(u -> u[2] == 0, branch.points)
+    end
+    potential(u) = (3u[3]^2 - sum(abs2, u)) / (2norm(u)^5)
+    u = [1.2, 0.7, 0.9]
+    h = 1.0e-5
+    B = collect(quadrupole(u, 0.0))
+    for i in 1:3
+        offset = zeros(3)
+        offset[i] = h
+        @test B[i] ≈ -(potential(u + offset) - potential(u - offset)) / (2h) rtol = 1.0e-8
+    end
+    @test collect(quadrupole(2u, 0.0)) ≈ B / 16
+    @test_throws DomainError quadrupole(zeros(3), 0.0)
+end
 
 @testset "Native analytical tracing" begin
     straight(u, s) = (0.0, 0.0, 2.0)
