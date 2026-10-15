@@ -1,7 +1,16 @@
 using FieldTracer, Meshes
 using Test
 
+@testset "Native loading without SciML" begin
+    @test !any(id -> id.name == "SciMLBase", keys(Base.loaded_modules))
+    @test Base.get_extension(FieldTracer, :FieldTracerSciMLBaseExt) === nothing
+end
+
+using SciMLBase: SciMLBase, ODEProblem
+using OrdinaryDiffEqTsit5: solve, Tsit5
+
 @testset "FieldTracer.jl" begin
+    include("test_analytical.jl")
     @testset "Seeding" begin
         x = 0.0:0.1:1.0
         y = 1.0:0.1:2.0
@@ -16,10 +25,15 @@ using Test
         field(u, s) = [0.0, 0.0, 2.0]
         u0 = [1.0, 2.0, 3.0]
         forward = TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :forward)
+        @test forward isa ODEProblem
         @test forward.tspan == (0.0, 2.0)
         @test forward.u0 == u0
         du = zeros(3)
         forward.f(du, u0, forward.p, 0.0)
+        @test du == [0.0, 0.0, 1.0]
+        tuple_field(u, s) = (0.0, 0.0, 2.0)
+        tuple_prob = TraceFieldlineProblem(u0, tuple_field, (0.0, 2.0); mode = :forward)
+        tuple_prob.f(du, u0, tuple_prob.p, 0.0)
         @test du == [0.0, 0.0, 1.0]
 
         backward = TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :backward)
@@ -28,10 +42,20 @@ using Test
         @test both[1].tspan == (0.0, 2.0)
         @test both[2].tspan == (0.0, -2.0)
         @test_throws ArgumentError TraceFieldlineProblem(u0, field, (0.0, 2.0); mode = :sideways)
+        shifted = TraceFieldlineProblem(u0, field, (3.0, 5.0); mode = :backward)
+        @test shifted.tspan == (3.0, 1.0)
+        @test Base.get_extension(FieldTracer, :FieldTracerSciMLBaseExt) !== nothing
+        solution = solve(tuple_prob, Tsit5(); abstol = 1.0e-9, reltol = 1.0e-9)
+        @test SciMLBase.successful_retcode(solution)
+        @test solution.u[end] ≈ u0 + [0.0, 0.0, 2.0]
+        backward_solution = solve(backward, Tsit5(); abstol = 1.0e-9, reltol = 1.0e-9)
+        @test SciMLBase.successful_retcode(backward_solution)
+        @test backward_solution.u[end] ≈ u0 - [0.0, 0.0, 2.0]
 
         zero_field(u, s) = zeros(3)
         trace_fieldline!(du, u0, zero_field, 0.0)
         @test du == zeros(3)
+        @test_throws DimensionMismatch trace_fieldline!(zeros(2), u0, field, 0.0)
     end
 
     @testset "2D structured mesh" begin

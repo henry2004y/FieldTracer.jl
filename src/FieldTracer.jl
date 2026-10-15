@@ -5,7 +5,6 @@ using Meshes: elements, centroid, coords, spacing, KNearestSearch, search
 using LinearAlgebra: norm
 using MuladdMacro: @muladd
 using PrecompileTools: @setup_workload, @compile_workload
-using SciMLBase: ODEProblem
 
 export trace
 export Euler, RK4
